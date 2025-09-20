@@ -1,41 +1,21 @@
-<html>
-<head>
-<title>main.kt</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<style type="text/css">
-.s0 { color: #cf8e6d;}
-.s1 { color: #bcbec4;}
-.s2 { color: #bcbec4;}
-.s3 { color: #6aab73;}
-</style>
-</head>
-<body bgcolor="#1e1f22">
-<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
-<tr><td><center>
-<font face="Arial, Helvetica" color="#000000">
-main.kt</font>
-</center></td></tr></table>
-<pre><span class="s0">package </span><span class="s1">cmsc124_lab1</span>
+package cmsc124_lab1
 
-<span class="s0">fun </span><span class="s1">repl</span><span class="s2">() {</span>
-    <span class="s1">println</span><span class="s2">(</span><span class="s3">&quot;Lexical cmsc124_lab1.Scanner (type 'exit' to quit)&quot;</span><span class="s2">)</span>
-    <span class="s0">val </span><span class="s1">input </span><span class="s2">= </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Scanner</span><span class="s2">(</span><span class="s1">System</span><span class="s2">.</span><span class="s1">`in`</span><span class="s2">)</span>
+fun repl() {
+    println("Lexical cmsc124_lab1.Scanner (type 'exit' to quit)")
+    val input = java.util.Scanner(System.`in`)
 
-    <span class="s0">while </span><span class="s2">(</span><span class="s0">true</span><span class="s2">) {</span>
-        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;&gt; &quot;</span><span class="s2">)</span>
-        <span class="s0">if </span><span class="s2">(!</span><span class="s1">input</span><span class="s2">.</span><span class="s1">hasNextLine</span><span class="s2">()) </span><span class="s0">break</span>
-        <span class="s0">val </span><span class="s1">line </span><span class="s2">= </span><span class="s1">input</span><span class="s2">.</span><span class="s1">nextLine</span><span class="s2">()</span>
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">line</span><span class="s2">.</span><span class="s1">trim</span><span class="s2">() == </span><span class="s3">&quot;exit&quot;</span><span class="s2">) </span><span class="s0">break</span>
+    while (true) {
+        print("> ")
+        if (!input.hasNextLine()) break
+        val line = input.nextLine()
+        if (line.trim() == "exit") break
 
-        <span class="s0">val </span><span class="s1">scanner </span><span class="s2">= </span><span class="s1">Scanner</span><span class="s2">(</span><span class="s1">line</span><span class="s2">)</span>
-        <span class="s0">val </span><span class="s1">token </span><span class="s2">= </span><span class="s1">scanner</span><span class="s2">.</span><span class="s1">scanTokens</span><span class="s2">()</span>
-        <span class="s1">println</span><span class="s2">(</span><span class="s1">token</span><span class="s2">)</span>
-        <span class="s2">}</span>
-    <span class="s2">}</span>
+        val scanner = Scanner(line)
+        val token = scanner.scanTokens()
+        println(token)
+        }
+    }
 
-<span class="s0">fun </span><span class="s1">main</span><span class="s2">() {</span>
-    <span class="s1">repl</span><span class="s2">()</span>
-<span class="s2">}</span>
-</pre>
-</body>
-</html>
+fun main() {
+    repl()
+}
