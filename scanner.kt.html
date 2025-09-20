@@ -1,126 +1,104 @@
-<html>
-<head>
-<title>scanner.kt</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<style type="text/css">
-.s0 { color: #cf8e6d;}
-.s1 { color: #bcbec4;}
-.s2 { color: #bcbec4;}
-.s3 { color: #2aacb8;}
-.s4 { color: #6aab73;}
-.s5 { color: #7a7e85;}
-</style>
-</head>
-<body bgcolor="#1e1f22">
-<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
-<tr><td><center>
-<font face="Arial, Helvetica" color="#000000">
-scanner.kt</font>
-</center></td></tr></table>
-<pre><span class="s0">package </span><span class="s1">cmsc124_lab1</span>
-<span class="s1">import cmsc124_lab1</span><span class="s2">.</span><span class="s1">TokenType</span>
-<span class="s1">import cmsc124_lab1</span><span class="s2">.</span><span class="s1">Token</span>
+package cmsc124_lab1
+import cmsc124_lab1.TokenType
+import cmsc124_lab1.Token
 
-<span class="s0">class </span><span class="s1">Scanner</span><span class="s2">(</span><span class="s1">private </span><span class="s0">val </span><span class="s1">source: String</span><span class="s2">) {</span>
-    <span class="s1">private </span><span class="s0">val </span><span class="s1">tokens </span><span class="s2">= </span><span class="s1">mutableListOf</span><span class="s2">&lt;</span><span class="s1">Token</span><span class="s2">&gt;()</span>
-    <span class="s1">private </span><span class="s0">var </span><span class="s1">start </span><span class="s2">= </span><span class="s3">0</span>
-    <span class="s1">private </span><span class="s0">var </span><span class="s1">current </span><span class="s2">= </span><span class="s3">0</span>
-    <span class="s1">private </span><span class="s0">var </span><span class="s1">line </span><span class="s2">= </span><span class="s3">1</span>
+class Scanner(private val source: String) {
+    private val tokens = mutableListOf<Token>()
+    private var start = 0
+    private var current = 0
+    private var line = 1
 
-    <span class="s0">fun </span><span class="s1">scanTokens</span><span class="s2">()</span><span class="s1">: List</span><span class="s2">&lt;</span><span class="s1">Token</span><span class="s2">&gt; {</span>
-        <span class="s0">while </span><span class="s2">(!</span><span class="s1">isAtEnd</span><span class="s2">()) {</span>
-            <span class="s1">start </span><span class="s2">= </span><span class="s1">current</span>
-            <span class="s1">scanToken</span><span class="s2">()</span>
-        <span class="s2">}</span>
-        <span class="s1">tokens</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">Token</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">EOF</span><span class="s2">, </span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">line</span><span class="s2">))</span>
-        <span class="s0">return </span><span class="s1">tokens</span>
-    <span class="s2">}</span>
+    fun scanTokens(): List<Token> {
+        while (!isAtEnd()) {
+            start = current
+            scanToken()
+        }
+        tokens.add(Token(TokenType.EOF, "", null, line))
+        return tokens
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">scanToken</span><span class="s2">() {</span>
-        <span class="s0">val </span><span class="s1">c </span><span class="s2">= </span><span class="s1">advance</span><span class="s2">()</span>
-        <span class="s0">when </span><span class="s2">(</span><span class="s1">c</span><span class="s2">) {</span>
-            <span class="s4">'(' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">LEFT_PAREN</span><span class="s2">)</span>
-            <span class="s4">')' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">RIGHT_PAREN</span><span class="s2">)</span>
-            <span class="s4">'{' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">LEFT_BRACE</span><span class="s2">)</span>
-            <span class="s4">'}' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">RIGHT_BRACE</span><span class="s2">)</span>
-            <span class="s4">',' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">COMMA</span><span class="s2">)</span>
-            <span class="s4">'.' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">DOT</span><span class="s2">)</span>
-            <span class="s4">'-' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">MINUS</span><span class="s2">)</span>
-            <span class="s4">'+' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">PLUS</span><span class="s2">)</span>
-            <span class="s4">';' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">SEMICOLON</span><span class="s2">)</span>
-            <span class="s4">'*' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">STAR</span><span class="s2">)</span>
-            <span class="s4">'/' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">SLASH</span><span class="s2">)</span>
-            <span class="s4">'=' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s0">if </span><span class="s2">(</span><span class="s1">match</span><span class="s2">(</span><span class="s4">'='</span><span class="s2">)) </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">EQUAL_EQUAL </span><span class="s0">else </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">EQUAL</span><span class="s2">)</span>
-            <span class="s4">'!' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s0">if </span><span class="s2">(</span><span class="s1">match</span><span class="s2">(</span><span class="s4">'='</span><span class="s2">)) </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">BANG_EQUAL </span><span class="s0">else </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">BANG</span><span class="s2">)</span>
-            <span class="s4">'&lt;' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s0">if </span><span class="s2">(</span><span class="s1">match</span><span class="s2">(</span><span class="s4">'='</span><span class="s2">)) </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">LESS_EQUAL </span><span class="s0">else </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">LESS</span><span class="s2">)</span>
-            <span class="s4">'&gt;' </span><span class="s2">-&gt; </span><span class="s1">addToken</span><span class="s2">(</span><span class="s0">if </span><span class="s2">(</span><span class="s1">match</span><span class="s2">(</span><span class="s4">'='</span><span class="s2">)) </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">GREATER_EQUAL </span><span class="s0">else </span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">GREATER</span><span class="s2">)</span>
+    private fun scanToken() {
+        val c = advance()
+        when (c) {
+            '(' -> addToken(TokenType.LEFT_PAREN)
+            ')' -> addToken(TokenType.RIGHT_PAREN)
+            '{' -> addToken(TokenType.LEFT_BRACE)
+            '}' -> addToken(TokenType.RIGHT_BRACE)
+            ',' -> addToken(TokenType.COMMA)
+            '.' -> addToken(TokenType.DOT)
+            '-' -> addToken(TokenType.MINUS)
+            '+' -> addToken(TokenType.PLUS)
+            ';' -> addToken(TokenType.SEMICOLON)
+            '*' -> addToken(TokenType.STAR)
+            '/' -> addToken(TokenType.SLASH)
+            '=' -> addToken(if (match('=')) TokenType.EQUAL_EQUAL else TokenType.EQUAL)
+            '!' -> addToken(if (match('=')) TokenType.BANG_EQUAL else TokenType.BANG)
+            '<' -> addToken(if (match('=')) TokenType.LESS_EQUAL else TokenType.LESS)
+            '>' -> addToken(if (match('=')) TokenType.GREATER_EQUAL else TokenType.GREATER)
 
-            <span class="s4">'&quot;' </span><span class="s2">-&gt; </span><span class="s1">string</span><span class="s2">()</span>
-            <span class="s0">in </span><span class="s4">'0'</span><span class="s2">..</span><span class="s4">'9' </span><span class="s2">-&gt; </span><span class="s1">number</span><span class="s2">()</span>
+            '"' -> string()
+            in '0'..'9' -> number()
 
-            <span class="s4">' '</span><span class="s2">, </span><span class="s4">'</span><span class="s1">\r</span><span class="s4">'</span><span class="s2">, </span><span class="s4">'</span><span class="s1">\t</span><span class="s4">' </span><span class="s2">-&gt; {} </span><span class="s5">// ignore whitespace</span>
-            <span class="s4">'</span><span class="s1">\n</span><span class="s4">' </span><span class="s2">-&gt; </span><span class="s1">line</span><span class="s2">++</span>
-            <span class="s0">else </span><span class="s2">-&gt; </span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;[Line </span><span class="s0">$</span><span class="s1">line</span><span class="s4">] Unexpected character: </span><span class="s0">$</span><span class="s1">c</span><span class="s4">&quot;</span><span class="s2">)</span>
-        <span class="s2">}</span>
-    <span class="s2">}</span>
+            ' ', '\r', '\t' -> {} // ignore whitespace
+            '\n' -> line++
+            else -> println("[Line $line] Unexpected character: $c")
+        }
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">advance</span><span class="s2">()</span><span class="s1">: Char </span><span class="s2">{</span>
-        <span class="s1">current</span><span class="s2">++</span>
-        <span class="s0">return </span><span class="s1">source</span><span class="s2">[</span><span class="s1">current </span><span class="s2">- </span><span class="s3">1</span><span class="s2">]</span>
-    <span class="s2">}</span>
+    private fun advance(): Char {
+        current++
+        return source[current - 1]
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">match</span><span class="s2">(</span><span class="s1">expected: Char</span><span class="s2">)</span><span class="s1">: Boolean </span><span class="s2">{</span>
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">isAtEnd</span><span class="s2">()) </span><span class="s0">return false</span>
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">source</span><span class="s2">[</span><span class="s1">current</span><span class="s2">] != </span><span class="s1">expected</span><span class="s2">) </span><span class="s0">return false</span>
-        <span class="s1">current</span><span class="s2">++</span>
-        <span class="s0">return true</span>
-    <span class="s2">}</span>
+    private fun match(expected: Char): Boolean {
+        if (isAtEnd()) return false
+        if (source[current] != expected) return false
+        current++
+        return true
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">peek</span><span class="s2">()</span><span class="s1">: Char </span><span class="s2">{</span>
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">isAtEnd</span><span class="s2">()) </span><span class="s0">return </span><span class="s4">'</span><span class="s1">\u0000</span><span class="s4">'</span>
-        <span class="s0">return </span><span class="s1">source</span><span class="s2">[</span><span class="s1">current</span><span class="s2">]</span>
-    <span class="s2">}</span>
+    private fun peek(): Char {
+        if (isAtEnd()) return '\u0000'
+        return source[current]
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">peekNext</span><span class="s2">()</span><span class="s1">: Char </span><span class="s2">{</span>
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">current </span><span class="s2">+ </span><span class="s3">1 </span><span class="s2">&gt;= </span><span class="s1">source</span><span class="s2">.</span><span class="s1">length</span><span class="s2">) </span><span class="s0">return </span><span class="s4">'</span><span class="s1">\u0000</span><span class="s4">'</span>
-        <span class="s0">return </span><span class="s1">source</span><span class="s2">[</span><span class="s1">current </span><span class="s2">+ </span><span class="s3">1</span><span class="s2">]</span>
-    <span class="s2">}</span>
+    private fun peekNext(): Char {
+        if (current + 1 >= source.length) return '\u0000'
+        return source[current + 1]
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">isAtEnd</span><span class="s2">()</span><span class="s1">: Boolean </span><span class="s2">= </span><span class="s1">current </span><span class="s2">&gt;= </span><span class="s1">source</span><span class="s2">.</span><span class="s1">length</span>
+    private fun isAtEnd(): Boolean = current >= source.length
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">addToken</span><span class="s2">(</span><span class="s1">type: TokenType</span><span class="s2">, </span><span class="s1">literal: Any? </span><span class="s2">= </span><span class="s0">null</span><span class="s2">) {</span>
-        <span class="s0">val </span><span class="s1">text </span><span class="s2">= </span><span class="s1">source</span><span class="s2">.</span><span class="s1">substring</span><span class="s2">(</span><span class="s1">start</span><span class="s2">, </span><span class="s1">current</span><span class="s2">)</span>
-        <span class="s1">tokens</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">Token</span><span class="s2">(</span><span class="s1">type</span><span class="s2">, </span><span class="s1">text</span><span class="s2">, </span><span class="s1">literal</span><span class="s2">, </span><span class="s1">line</span><span class="s2">))</span>
-    <span class="s2">}</span>
+    private fun addToken(type: TokenType, literal: Any? = null) {
+        val text = source.substring(start, current)
+        tokens.add(Token(type, text, literal, line))
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">string</span><span class="s2">() {</span>
-        <span class="s0">while </span><span class="s2">(</span><span class="s1">peek</span><span class="s2">() != </span><span class="s4">'&quot;' </span><span class="s2">&amp;&amp; !</span><span class="s1">isAtEnd</span><span class="s2">()) {</span>
-            <span class="s0">if </span><span class="s2">(</span><span class="s1">peek</span><span class="s2">() == </span><span class="s4">'</span><span class="s1">\n</span><span class="s4">'</span><span class="s2">) </span><span class="s1">line</span><span class="s2">++</span>
-            <span class="s1">advance</span><span class="s2">()</span>
-        <span class="s2">}</span>
+    private fun string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++
+            advance()
+        }
 
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">isAtEnd</span><span class="s2">()) {</span>
-            <span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;[Line </span><span class="s0">$</span><span class="s1">line</span><span class="s4">] Error: Unterminated string.&quot;</span><span class="s2">)</span>
-            <span class="s0">return</span>
-        <span class="s2">}</span>
+        if (isAtEnd()) {
+            println("[Line $line] Error: Unterminated string.")
+            return
+        }
 
-        <span class="s1">advance</span><span class="s2">() </span><span class="s5">// closing quote</span>
-        <span class="s0">val </span><span class="s1">value </span><span class="s2">= </span><span class="s1">source</span><span class="s2">.</span><span class="s1">substring</span><span class="s2">(</span><span class="s1">start </span><span class="s2">+ </span><span class="s3">1</span><span class="s2">, </span><span class="s1">current </span><span class="s2">- </span><span class="s3">1</span><span class="s2">)</span>
-        <span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">STRING</span><span class="s2">, </span><span class="s1">value</span><span class="s2">)</span>
-    <span class="s2">}</span>
+        advance() // closing quote
+        val value = source.substring(start + 1, current - 1)
+        addToken(TokenType.STRING, value)
+    }
 
-    <span class="s1">private </span><span class="s0">fun </span><span class="s1">number</span><span class="s2">() {</span>
-        <span class="s0">while </span><span class="s2">(</span><span class="s1">peek</span><span class="s2">().</span><span class="s1">isDigit</span><span class="s2">()) </span><span class="s1">advance</span><span class="s2">()</span>
+    private fun number() {
+        while (peek().isDigit()) advance()
 
-        <span class="s0">if </span><span class="s2">(</span><span class="s1">peek</span><span class="s2">() == </span><span class="s4">'.' </span><span class="s2">&amp;&amp; </span><span class="s1">peekNext</span><span class="s2">().</span><span class="s1">isDigit</span><span class="s2">()) {</span>
-            <span class="s1">advance</span><span class="s2">()</span>
-            <span class="s0">while </span><span class="s2">(</span><span class="s1">peek</span><span class="s2">().</span><span class="s1">isDigit</span><span class="s2">()) </span><span class="s1">advance</span><span class="s2">()</span>
-        <span class="s2">}</span>
+        if (peek() == '.' && peekNext().isDigit()) {
+            advance()
+            while (peek().isDigit()) advance()
+        }
 
-        <span class="s0">val </span><span class="s1">value </span><span class="s2">= </span><span class="s1">source</span><span class="s2">.</span><span class="s1">substring</span><span class="s2">(</span><span class="s1">start</span><span class="s2">, </span><span class="s1">current</span><span class="s2">).</span><span class="s1">toDouble</span><span class="s2">()</span>
-        <span class="s1">addToken</span><span class="s2">(</span><span class="s1">TokenType</span><span class="s2">.</span><span class="s1">NUMBER</span><span class="s2">, </span><span class="s1">value</span><span class="s2">)</span>
-    <span class="s2">}</span>
-<span class="s2">}</span>
-</pre>
-</body>
-</html>
+        val value = source.substring(start, current).toDouble()
+        addToken(TokenType.NUMBER, value)
+    }
+}
