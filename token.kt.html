@@ -1,51 +1,31 @@
-<html>
-<head>
-<title>token.kt</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<style type="text/css">
-.s0 { color: #cf8e6d;}
-.s1 { color: #bcbec4;}
-.s2 { color: #7a7e85;}
-.s3 { color: #bcbec4;}
-</style>
-</head>
-<body bgcolor="#1e1f22">
-<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
-<tr><td><center>
-<font face="Arial, Helvetica" color="#000000">
-token.kt</font>
-</center></td></tr></table>
-<pre><span class="s0">package </span><span class="s1">cmsc124_lab1</span>
+package cmsc124_lab1
 
-<span class="s2">// Enum for all possible token types</span>
-<span class="s1">enum </span><span class="s0">class </span><span class="s1">TokenType </span><span class="s3">{</span>
-    <span class="s2">// Single-character tokens</span>
-    <span class="s1">LEFT_PAREN</span><span class="s3">, </span><span class="s1">RIGHT_PAREN</span><span class="s3">,</span>
-    <span class="s1">LEFT_BRACE</span><span class="s3">, </span><span class="s1">RIGHT_BRACE</span><span class="s3">,</span>
-    <span class="s1">COMMA</span><span class="s3">, </span><span class="s1">DOT</span><span class="s3">, </span><span class="s1">MINUS</span><span class="s3">, </span><span class="s1">PLUS</span><span class="s3">,</span>
-    <span class="s1">SEMICOLON</span><span class="s3">, </span><span class="s1">SLASH</span><span class="s3">, </span><span class="s1">STAR</span><span class="s3">,</span>
-    <span class="s1">EQUAL</span><span class="s3">, </span><span class="s1">LESS</span><span class="s3">, </span><span class="s1">GREATER</span><span class="s3">, </span><span class="s1">BANG</span><span class="s3">,</span>
+// Enum for all possible token types
+enum class TokenType {
+    // Single-character tokens
+    LEFT_PAREN, RIGHT_PAREN,
+    LEFT_BRACE, RIGHT_BRACE,
+    COMMA, DOT, MINUS, PLUS,
+    SEMICOLON, SLASH, STAR,
+    EQUAL, LESS, GREATER, BANG,
 
-    <span class="s2">// Multi-character operators</span>
-    <span class="s1">EQUAL_EQUAL</span><span class="s3">,</span>
-    <span class="s1">BANG_EQUAL</span><span class="s3">,</span>
-    <span class="s1">LESS_EQUAL</span><span class="s3">,</span>
-    <span class="s1">GREATER_EQUAL</span><span class="s3">,</span>
+    // Multi-character operators
+    EQUAL_EQUAL,
+    BANG_EQUAL,
+    LESS_EQUAL,
+    GREATER_EQUAL,
 
-    <span class="s2">// Literals</span>
-    <span class="s1">STRING</span><span class="s3">,</span>
-    <span class="s1">NUMBER</span><span class="s3">,</span>
+    // Literals
+    STRING,
+    NUMBER,
 
-    <span class="s1">EOF</span>
-<span class="s3">}</span>
+    EOF
+}
 
-<span class="s2">// cmsc124_lab1.Token class</span>
-<span class="s1">data </span><span class="s0">class </span><span class="s1">Token</span><span class="s3">(</span>
-    <span class="s0">val </span><span class="s1">type: TokenType</span><span class="s3">,</span>
-    <span class="s0">val </span><span class="s1">lexeme: String</span><span class="s3">,</span>
-    <span class="s0">val </span><span class="s1">literal: Any?</span><span class="s3">,</span>
-    <span class="s0">val </span><span class="s1">line: Int</span>
-<span class="s3">)</span>
-</pre>
-</body>
-</html>
+// cmsc124_lab1.Token class
+data class Token(
+    val type: TokenType,
+    val lexeme: String,
+    val literal: Any?,
+    val line: Int
+)
