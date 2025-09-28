@@ -11,10 +11,12 @@ fun repl() {
         if (line.trim() == "exit") break
 
         val scanner = Scanner(line)
-        val token = scanner.scanTokens()
-        println(token)
-        }
+        val tokens = scanner.scanTokens()
+
+        // Join tokens with newlines
+        println(tokens.joinToString("\n"))
     }
+}
 
 fun main() {
     repl()
