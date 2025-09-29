@@ -6,7 +6,9 @@ class Scanner(private val source: String) {
     private val tokens = mutableListOf<Token>()
     private var start = 0
     private var current = 0
-    private var line = 1
+    private var line = 1 
+    //They're private for encapsulation - 
+    //to hide internal implementation details
 
     // Keywords map for identifiers
     private val keywords = mapOf(
@@ -16,19 +18,19 @@ class Scanner(private val source: String) {
         "while" to TokenType.WHILE,
         "for" to TokenType.FOR,
         "return" to TokenType.RETURN
-    )
+    ) 
 
-    fun scanTokens(): List<Token> {
+    fun scanTokens(): List<Token> { //Loop through entire source code until end
         while (!isAtEnd()) {
             start = current
-            scanToken()
+            scanToken() //Call scanToken() to identify and process one token
         }
-        tokens.add(Token(TokenType.EOF, "", null, line))
+        tokens.add(Token(TokenType.EOF, "", null, line)) //After loop ends, add EOF (End of File) token
         return tokens
     }
 
-    private fun scanToken() {
-        val c = advance()
+    private fun scanToken() { //Identifies Single Token
+        val c = advance(). //It gets the current character and moves forward.
         when (c) {
             '(' -> addToken(TokenType.LEFT_PAREN)
             ')' -> addToken(TokenType.RIGHT_PAREN)
@@ -151,6 +153,11 @@ class Scanner(private val source: String) {
         addToken(type)
     }
 
+    //Step 1: Read all letters/digits: "var123"
+    //Step 2: Check if "var123" is in keywords map → NO
+    //Step 3: Type = IDENTIFIER
+    //Step 4: Create IDENTIFIER token
+
     private fun isAlpha(c: Char): Boolean {
         return c.isLetter() || c == '_'
     }
@@ -164,3 +171,4 @@ class Scanner(private val source: String) {
         println("[Line $line] Error: $message")
     }
 }
+
