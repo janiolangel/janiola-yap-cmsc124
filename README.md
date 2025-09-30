@@ -15,7 +15,7 @@ No, the whitespace is insignificant. The lexer will just skip it and the parser 
 
 4. How are comments styled? Are nested or docstring-style comments allowed?
    
-A single-line comment is written using a double slash (//), while a multi-line (block) comment is written using triple slashes (/// ... ///).
+A single-line comment is written using a double slash (//), while a multi-line (block) comment is written using triple slashes (/* ... */).
 
 
 5. How does it do loops and other common language constructs?
