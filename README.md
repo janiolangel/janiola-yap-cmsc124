@@ -15,6 +15,14 @@ K = +      X = ><
 L = !      Y = ¥
 M = ^^     Z = ?_
 
+OPERATORS:
+⊕ (addition)    
+⊖ (subtraction) 
+⊗ (multiplication) 
+÷ (division) 
+≡ (equal sign)
+≠ (not equal)
+
 1. How is a variable declared?
    A variable is declared using the “=” sign. Example: `@ = 5` (a = 5)
 
