@@ -20,7 +20,7 @@ class Scanner(private val source: String) {
 
     // Single-character TEXTO letter symbols
     private val textoSingle = listOf(
-        "@", "#", "*", "]", "€", "£", "&", "+", "!", "^", "-", "(", ")", "/", ">", ";", "$", ".", "•", "?", "|", "<", "¥"
+        "@", "#", "*", "]", "€", "£", "&", "+", "!", "^", "-", "/", ">", ";", "$", ".", "•", "?", "|", "<", "¥"
     )
 
     // Combined list for identifier-start matching (multi first)
