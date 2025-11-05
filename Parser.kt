@@ -27,43 +27,56 @@ class Parser(private val tokens: List<Token>) {
     private fun step(): Expr {
         return when {
             match(TokenType.MIX) -> {
+                val operator = previous() // 👈 store MIX token
                 val left = value()
                 consume(TokenType.AND, "Expect 'and' after first value.")
                 val right = value()
-                Expr.Binary(left, previous(), right)
+                Expr.Binary(left, operator, right)
             }
+
             match(TokenType.TAKE_AWAY) -> {
+                val operator = previous()
                 val left = value()
                 consume(TokenType.FROM, "Expect 'from' after first value.")
                 val right = value()
-                Expr.Binary(left, previous(), right)
+                Expr.Binary(left, operator, right)
             }
+
             match(TokenType.COMBINE) -> {
+                val operator = previous()
                 val left = value()
                 consume(TokenType.AND, "Expect 'and' after first value.")
                 val right = value()
-                Expr.Binary(left, previous(), right)
+                Expr.Binary(left, operator, right)
             }
+
             match(TokenType.SHARE) -> {
+                val operator = previous()
                 val left = value()
                 consume(TokenType.WITH, "Expect 'with' after first value.")
                 val right = value()
-                Expr.Binary(left, previous(), right)
+                Expr.Binary(left, operator, right)
             }
+
             match(TokenType.FLIP) -> {
+                val operator = previous()
                 val right = value()
-                Expr.Unary(previous(), right)
+                Expr.Unary(operator, right)
             }
+
             match(TokenType.CHECK_IF) -> {
+                val operator = previous()
                 val left = value()
-                val op = if (match(TokenType.GREATER, TokenType.LESS, TokenType.EQUAL_EQUAL)) previous()
+                val comp = if (match(TokenType.GREATER, TokenType.LESS, TokenType.EQUAL_EQUAL)) previous()
                 else throw error(peek(), "Expect comparison operator after 'Check if'.")
                 val right = value()
-                Expr.Binary(left, op, right)
+                Expr.Binary(left, comp, right)
             }
+
             else -> value()
         }
     }
+
 
     private fun value(): Expr {
         if (match(TokenType.NUMBER, TokenType.STRING))
@@ -113,4 +126,26 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private class ParseError : RuntimeException()
+}
+
+class AstPrinter {
+    fun print(expr: Expr): String {
+        return when (expr) {
+            is Expr.Binary -> parenthesize(expr.operator.lexeme, expr.left, expr.right)
+            is Expr.Grouping -> parenthesize("group", expr.expression)
+            is Expr.Literal -> expr.value?.toString() ?: "nil"
+            is Expr.Unary -> parenthesize(expr.operator.lexeme, expr.right)
+        }
+    }
+
+    private fun parenthesize(name: String, vararg exprs: Expr): String {
+        val builder = StringBuilder()
+        builder.append("(").append(name)
+        for (expr in exprs) {
+            builder.append(" ")
+            builder.append(print(expr))
+        }
+        builder.append(")")
+        return builder.toString()
+    }
 }
