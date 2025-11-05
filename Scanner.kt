@@ -4,16 +4,14 @@ class Scanner(private val source: String) {
     private var current = 0
     private var line = 1
 
-    // Map of Gen Z keywords
+    // Map of new keywords
     private val keywords = mapOf(
         "Mix" to TokenType.MIX,
-        "Take" to TokenType.TAKE_AWAY,      // 'Take away'
-        "away" to TokenType.TAKE_AWAY,
+        "Take away" to TokenType.TAKE_AWAY,   // 👈 merged keyword
         "Combine" to TokenType.COMBINE,
         "Share" to TokenType.SHARE,
         "Flip" to TokenType.FLIP,
-        "Check" to TokenType.CHECK_IF,      // 'Check if'
-        "if" to TokenType.CHECK_IF,
+        "Check if" to TokenType.CHECK_IF,     // 👈 also merged
         "and" to TokenType.AND,
         "from" to TokenType.FROM,
         "with" to TokenType.WITH,
@@ -21,6 +19,7 @@ class Scanner(private val source: String) {
         "<" to TokenType.LESS,
         "==" to TokenType.EQUAL_EQUAL
     )
+
 
     fun scanTokens(): List<Token> {
         while (!isAtEnd()) {
@@ -48,10 +47,35 @@ class Scanner(private val source: String) {
 
     private fun identifier() {
         while (peek().isLetter()) advance()
-        val text = source.substring(start, current)
+        var text = source.substring(start, current)
+
+        // check if next part creates a two-word keyword (like "Take away" or "Check if")
+        if (peek().isWhitespace()) {
+            val saved = current
+            skipWhitespace()
+            val nextWord = readNextWord()
+            val twoWord = "$text $nextWord"
+            if (keywords.containsKey(twoWord)) {
+                text = twoWord
+            } else {
+                current = saved // revert if not a known pair
+            }
+        }
+
         val type = keywords[text] ?: TokenType.IDENTIFIER
         addToken(type)
     }
+
+    private fun skipWhitespace() {
+        while (peek().isWhitespace() && peek() != '\n') advance()
+    }
+
+    private fun readNextWord(): String {
+        val startWord = current
+        while (peek().isLetter()) advance()
+        return source.substring(startWord, current)
+    }
+
 
     private fun number() {
         while (peek().isDigit()) advance()
