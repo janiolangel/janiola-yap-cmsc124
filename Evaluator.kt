@@ -30,7 +30,7 @@ class Evaluator {
 
                     TokenType.TAKE_AWAY -> {
                         checkNumberOperands(expr.operator, left, right)
-                        (left as Double) - (right as Double)
+                        (right as Double) - (left as Double)
                     }
 
                     TokenType.COMBINE -> {
