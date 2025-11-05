@@ -4,18 +4,13 @@ enum class TokenType {
     LEFT_PAREN, RIGHT_PAREN,
     COMMA, SEMICOLON,
 
-    // Gen Z verbs (keywords)
-    MIX,          // addition
-    TAKE_AWAY,    // subtraction
-    COMBINE,      // multiplication
-    SHARE,        // division
-    FLIP,         // unary minus
-    CHECK_IF,     // inequality intro word
+    // new verbs
+    MIX, TAKE_AWAY, COMBINE, SHARE, FLIP, CHECK_IF,
 
     // Connectors
     AND, FROM, WITH,
 
-    // Comparison operators
+    // Comparison
     GREATER, LESS, EQUAL_EQUAL,
 
     // Literals
@@ -24,7 +19,7 @@ enum class TokenType {
     EOF
 }
 
-// token data class
+// the actual data
 data class Token(
     val type: TokenType,
     val lexeme: String,
