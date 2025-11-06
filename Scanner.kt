@@ -6,18 +6,18 @@ class Scanner(private val source: String) {
 
     // Map of new keywords
     private val keywords = mapOf(
-        "Mix" to TokenType.MIX,
-        "Take away" to TokenType.TAKE_AWAY,   // 👈 merged keyword
-        "Combine" to TokenType.COMBINE,
-        "Share" to TokenType.SHARE,
-        "Flip" to TokenType.FLIP,
-        "Check if" to TokenType.CHECK_IF,     // 👈 also merged
-        "and" to TokenType.AND,
-        "from" to TokenType.FROM,
-        "with" to TokenType.WITH,
-        ">" to TokenType.GREATER,
-        "<" to TokenType.LESS,
-        "==" to TokenType.EQUAL_EQUAL
+        "Mix" to TokenType.MIX,                // addition
+        "Take away" to TokenType.TAKE_AWAY,    // subtraction
+        "Combine" to TokenType.COMBINE,        // multiplication
+        "Share" to TokenType.SHARE,            // division
+        "Flip" to TokenType.FLIP,              // unary minus
+        "Check if" to TokenType.CHECK_IF,      // inequality
+        "and" to TokenType.AND,                // connector used in addition/multiplication operations
+        "from" to TokenType.FROM,              // connector used in subtraction operation
+        "with" to TokenType.WITH,              // connector used in division operation
+        ">" to TokenType.GREATER,              // greater-than operator (used with Check if)
+        "<" to TokenType.LESS,                 // less-than operator (used with Check if)
+        "==" to TokenType.EQUAL_EQUAL          // equality operator (used with Check if)
     )
 
 
@@ -123,3 +123,4 @@ class Scanner(private val source: String) {
         println("[Line $line] Error: $message")
     }
 }
+
