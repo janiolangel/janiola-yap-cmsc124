@@ -14,22 +14,13 @@ class Parser(private val tokens: List<Token>) {
         null
     }
 
-    // Grammar:
-    // <Program> ::= <Step>
-    // <Step> ::= "Mix" <Value> "and" <Value>
-    //          | "Take away" <Value> "from" <Value>
-    //          | "Combine" <Value> "and" <Value>
-    //          | "Share" <Value> "with" <Value>
-    //          | "Flip" <Value>
-    //          | "Check if" <Value> <Inequality> <Value>
-    // <Value> ::= NUMBER | STRING | "(" <Step> ")"
-
     private fun step(): Expr {
         return when {
+
             match(TokenType.MIX) -> {
-                val operator = previous() // 👈 store MIX token
+                val operator = previous()
                 val left = value()
-                consume(TokenType.AND, "Expect 'and' after first value.")
+                consume(TokenType.AND, "Expect 'and'.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
@@ -37,7 +28,7 @@ class Parser(private val tokens: List<Token>) {
             match(TokenType.TAKE_AWAY) -> {
                 val operator = previous()
                 val left = value()
-                consume(TokenType.FROM, "Expect 'from' after first value.")
+                consume(TokenType.FROM, "Expect 'from'.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
@@ -45,7 +36,7 @@ class Parser(private val tokens: List<Token>) {
             match(TokenType.COMBINE) -> {
                 val operator = previous()
                 val left = value()
-                consume(TokenType.AND, "Expect 'and' after first value.")
+                consume(TokenType.AND, "Expect 'and'.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
@@ -53,7 +44,7 @@ class Parser(private val tokens: List<Token>) {
             match(TokenType.SHARE) -> {
                 val operator = previous()
                 val left = value()
-                consume(TokenType.WITH, "Expect 'with' after first value.")
+                consume(TokenType.WITH, "Expect 'with'.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
@@ -65,18 +56,18 @@ class Parser(private val tokens: List<Token>) {
             }
 
             match(TokenType.CHECK_IF) -> {
-                val operator = previous()
                 val left = value()
-                val comp = if (match(TokenType.GREATER, TokenType.LESS, TokenType.EQUAL_EQUAL)) previous()
-                else throw error(peek(), "Expect comparison operator after 'Check if'.")
+                val op = if (match(TokenType.GREATER, TokenType.LESS, TokenType.EQUAL_EQUAL))
+                    previous()
+                else
+                    throw error(peek(), "Expect comparison operator.")
                 val right = value()
-                Expr.Binary(left, comp, right)
+                Expr.Binary(left, op, right)
             }
 
             else -> value()
         }
     }
-
 
     private fun value(): Expr {
         if (match(TokenType.NUMBER, TokenType.STRING))
@@ -84,14 +75,13 @@ class Parser(private val tokens: List<Token>) {
 
         if (match(TokenType.LEFT_PAREN)) {
             val expr = step()
-            consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
+            consume(TokenType.RIGHT_PAREN, "Expect ')'.")
             return Expr.Grouping(expr)
         }
 
         throw error(peek(), "Expect value.")
     }
 
-    // --- helpers ---
     private fun match(vararg types: TokenType): Boolean {
         for (type in types) {
             if (check(type)) {
@@ -102,7 +92,7 @@ class Parser(private val tokens: List<Token>) {
         return false
     }
 
-    private fun check(type: TokenType): Boolean =
+    private fun check(type: TokenType) =
         !isAtEnd() && peek().type == type
 
     private fun advance(): Token {
@@ -111,7 +101,6 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun isAtEnd() = peek().type == TokenType.EOF
-
     private fun peek() = tokens[current]
     private fun previous() = tokens[current - 1]
 
@@ -126,26 +115,4 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private class ParseError : RuntimeException()
-}
-
-class AstPrinter {
-    fun print(expr: Expr): String {
-        return when (expr) {
-            is Expr.Binary -> parenthesize(expr.operator.lexeme, expr.left, expr.right)
-            is Expr.Grouping -> parenthesize("group", expr.expression)
-            is Expr.Literal -> expr.value?.toString() ?: "nil"
-            is Expr.Unary -> parenthesize(expr.operator.lexeme, expr.right)
-        }
-    }
-
-    private fun parenthesize(name: String, vararg exprs: Expr): String {
-        val builder = StringBuilder()
-        builder.append("(").append(name)
-        for (expr in exprs) {
-            builder.append(" ")
-            builder.append(print(expr))
-        }
-        builder.append(")")
-        return builder.toString()
-    }
 }

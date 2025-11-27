@@ -4,22 +4,21 @@ class Scanner(private val source: String) {
     private var current = 0
     private var line = 1
 
-    // Map of new keywords
+    // all keywords stored in lowercase for case-insensitive matching
     private val keywords = mapOf(
-        "Mix" to TokenType.MIX,                // addition
-        "Take away" to TokenType.TAKE_AWAY,    // subtraction
-        "Combine" to TokenType.COMBINE,        // multiplication
-        "Share" to TokenType.SHARE,            // division
-        "Flip" to TokenType.FLIP,              // unary minus
-        "Check if" to TokenType.CHECK_IF,      // inequality
-        "and" to TokenType.AND,                // connector used in addition/multiplication operations
-        "from" to TokenType.FROM,              // connector used in subtraction operation
-        "with" to TokenType.WITH,              // connector used in division operation
-        ">" to TokenType.GREATER,              // greater-than operator (used with Check if)
-        "<" to TokenType.LESS,                 // less-than operator (used with Check if)
-        "==" to TokenType.EQUAL_EQUAL          // equality operator (used with Check if)
+        "mix" to TokenType.MIX,
+        "take away" to TokenType.TAKE_AWAY,
+        "combine" to TokenType.COMBINE,
+        "share" to TokenType.SHARE,
+        "flip" to TokenType.FLIP,
+        "check if" to TokenType.CHECK_IF,
+        "and" to TokenType.AND,
+        "from" to TokenType.FROM,
+        "with" to TokenType.WITH,
+        ">" to TokenType.GREATER,
+        "<" to TokenType.LESS,
+        "==" to TokenType.EQUAL_EQUAL
     )
-
 
     fun scanTokens(): List<Token> {
         while (!isAtEnd()) {
@@ -33,9 +32,7 @@ class Scanner(private val source: String) {
     private fun scanToken() {
         val c = advance()
         when {
-            c.isWhitespace() -> {
-                if (c == '\n') line++
-            }
+            c.isWhitespace() -> if (c == '\n') line++
             c.isDigit() -> number()
             c == '"' -> string()
             c.isLetter() -> identifier()
@@ -47,23 +44,27 @@ class Scanner(private val source: String) {
 
     private fun identifier() {
         while (peek().isLetter()) advance()
-        var text = source.substring(start, current)
 
-        // check if next part creates a two-word keyword (like "Take away" or "Check if")
+        // convert to lowercase for matching
+        var text = source.substring(start, current).lowercase()
+
+        // check merged keywords (Take away, Check if)
         if (peek().isWhitespace()) {
             val saved = current
             skipWhitespace()
-            val nextWord = readNextWord()
-            val twoWord = "$text $nextWord"
-            if (keywords.containsKey(twoWord)) {
-                text = twoWord
+            val nextWord = readNextWord().lowercase()
+
+            val combined = "$text $nextWord"
+            if (keywords.containsKey(combined)) {
+                text = combined
             } else {
-                current = saved // revert if not a known pair
+                current = saved
             }
         }
 
-        val type = keywords[text] ?: TokenType.IDENTIFIER
-        addToken(type)
+        val type = keywords[text]
+        if (type != null) addToken(type)
+        // ignore if it's not in the keyword list
     }
 
     private fun skipWhitespace() {
@@ -75,7 +76,6 @@ class Scanner(private val source: String) {
         while (peek().isLetter()) advance()
         return source.substring(startWord, current)
     }
-
 
     private fun number() {
         while (peek().isDigit()) advance()
@@ -96,7 +96,7 @@ class Scanner(private val source: String) {
             error("Unterminated string.")
             return
         }
-        advance() // closing quote
+        advance()
         val value = source.substring(start + 1, current - 1)
         addToken(TokenType.STRING, value)
     }
@@ -123,4 +123,3 @@ class Scanner(private val source: String) {
         println("[Line $line] Error: $message")
     }
 }
-
