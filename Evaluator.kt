@@ -3,18 +3,21 @@ class Evaluator {
     private val globals = Environment()
     private var environment = globals
 
-    fun interpret(statements: List<Stmt>) {
-        for (stmt in statements) {
-            execute(stmt)
-        }
+    var isRepl: Boolean = false
+
+    fun interpret(statement: Stmt?) {
+        if (statement != null) execute(statement)
     }
+
 
     private fun execute(stmt: Stmt) {
         when (stmt) {
             is Stmt.Expression -> {
-                evaluate(stmt.expression) // ignore result
+                // Evaluate expression but DO NOT print automatically
+                evaluate(stmt.expression)
             }
-            is Stmt.Print -> {
+
+            is Stmt.Print -> { //PRINT STATEMENT STEP 2
                 val value = evaluate(stmt.expression)
                 println(stringify(value))
             }
@@ -50,16 +53,16 @@ class Evaluator {
         return when (expr) {
             is Expr.Literal -> expr.value
 
-            is Expr.Grouping -> evaluate(expr.expression)
+            is Expr.Grouping -> evaluate(expr.expression) //GROUPING STEP 2
 
-            is Expr.Unary -> {
+            is Expr.Unary -> { //UNARY EXPRESSION STEP 2
                 val right = evaluate(expr.right)
                 when (expr.operator.type) {
                     TokenType.FLIP -> {
-                        checkNumberOperand(expr.operator, right)
+                        checkNumberOperand(expr.operator, right) //DETE
                         -(right as Double)
                     }
-                    else -> null
+                    else -> "incorrect syntax"
                 }
             }
 
@@ -68,50 +71,72 @@ class Evaluator {
                 val right = evaluate(expr.right)
 
                 when (expr.operator.type) {
+
                     TokenType.MIX -> {
-                        // number + number OR string + string
                         if (left is Double && right is Double) return left + right
                         if (left is String && right is String) return left + right
-                        throw RuntimeError(
-                            expr.operator,
-                            "Mix requires two numbers or two strings."
-                        )
+
+                        // REMOVE THESE:
+                        if (left is String && right is Double) return left + stringify(right)
+                        if (left is Double && right is String) return stringify(left) + right
+
+                        throw RuntimeError(expr.operator, "Mix requires two numbers or two strings.")
                     }
+
 
                     TokenType.TAKE_AWAY -> {
-                        checkNumberOperands(expr.operator, left, right)
-                        (left as Double) - (right as Double)
+
+                        // number - number
+                        if (left is Double && right is Double) {
+                            return left - right
+                        }
+
+                        // string remove number
+                        if (left is String && right is Double) {
+                            val removeWhat = right.toInt().toString()
+                            return left.replace(removeWhat, "")
+                        }
+
+                        // string remove string
+                        if (left is String && right is String) {
+                            return left.replace(right, "")
+                        }
+
+                        throw RuntimeError(expr.operator,
+                            "Take away requires two numbers or a string and a removable value.")
                     }
 
-                    TokenType.COMBINE -> {
+
+                    TokenType.MULTIPLY -> {
                         checkNumberOperands(expr.operator, left, right)
-                        (left as Double) * (right as Double)
+                        return (left as Double) * (right as Double)
                     }
 
-                    TokenType.SHARE -> {
+                    TokenType.DIVIDE -> {
                         checkNumberOperands(expr.operator, left, right)
                         if ((right as Double) == 0.0)
                             throw RuntimeError(expr.operator, "Division by zero.")
-                        (left as Double) / right
+                        return (left as Double) / right
                     }
 
                     TokenType.GREATER -> {
                         checkNumberOperands(expr.operator, left, right)
-                        (left as Double) > (right as Double)
+                        return (left as Double) > (right as Double)
                     }
 
                     TokenType.LESS -> {
                         checkNumberOperands(expr.operator, left, right)
-                        (left as Double) < (right as Double)
+                        return (left as Double) < (right as Double)
                     }
 
                     TokenType.EQUAL_EQUAL -> {
-                        left == right
+                        return left == right
                     }
 
                     else -> null
                 }
             }
+
 
             is Expr.Variable -> environment.get(expr.name)
         }
@@ -120,13 +145,14 @@ class Evaluator {
     // -------- Helpers --------
 
     fun stringify(value: Any?): String {
-        if (value == null) return "nil"
         if (value is Double) {
             val text = value.toString()
             return if (text.endsWith(".0")) text.dropLast(2) else text
         }
         return value.toString()
     }
+
+    //DETECT WHEN OPERANDS HAVE INCORRECT TYPE FOR OPERATORS
 
     private fun checkNumberOperand(operator: Token, operand: Any?) {
         if (operand is Double) return

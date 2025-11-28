@@ -4,21 +4,30 @@ class Scanner(private val source: String) {
     private var current = 0
     private var line = 1
 
-    // All keyword keys are lowercase (for case-insensitive match)
+    // All keyword keys are lowercase (case-insensitive)
     private val keywords = mapOf(
+        // expressions
         "mix" to TokenType.MIX,
         "take away" to TokenType.TAKE_AWAY,
-        "combine" to TokenType.COMBINE,
-        "share" to TokenType.SHARE,
+        "multiply" to TokenType.MULTIPLY,
+        "divide" to TokenType.DIVIDE,
         "flip" to TokenType.FLIP,
         "check if" to TokenType.CHECK_IF,
 
+        // statements
         "remember" to TokenType.REMEMBER,
         "set" to TokenType.SET,
         "print" to TokenType.PRINT,
         "as" to TokenType.AS,
         "to" to TokenType.TO,
 
+        // natural language sugar
+        "the" to TokenType.THE,
+        "value" to TokenType.VALUE,
+        "when" to TokenType.WHEN,
+        "you" to TokenType.YOU,
+
+        // connectors
         "and" to TokenType.AND,
         "from" to TokenType.FROM,
         "with" to TokenType.WITH
@@ -39,15 +48,14 @@ class Scanner(private val source: String) {
             c.isWhitespace() -> {
                 if (c == '\n') line++
             }
-
             c.isDigit() -> number()
             c == '"' -> string()
             c.isLetter() -> identifier()
 
-            c == '(' -> addToken(TokenType.LEFT_PAREN)
-            c == ')' -> addToken(TokenType.RIGHT_PAREN)
             c == '{' -> addToken(TokenType.LEFT_BRACE)
             c == '}' -> addToken(TokenType.RIGHT_BRACE)
+            c == '(' -> addToken(TokenType.LEFT_PAREN)
+            c == ')' -> addToken(TokenType.RIGHT_PAREN)
             c == ';' -> addToken(TokenType.SEMICOLON)
 
             c == '>' -> addToken(TokenType.GREATER)
@@ -59,40 +67,31 @@ class Scanner(private val source: String) {
     }
 
     private fun identifier() {
-        // read first word (original case)
         while (peek().isLetterOrDigit() || peek() == '_') advance()
+
         val original = source.substring(start, current)
         var lower = original.lowercase()
 
-        // Check for merged two-word keywords: "take away", "check if"
+        // handle two-word keywords like "take away", "check if"
         if (peek().isWhitespace()) {
             val saved = current
             skipWhitespace()
             val nextWordStart = current
-            while (peek().isLetter()) advance()
-            val nextOriginal = source.substring(nextWordStart, current)
-            val nextLower = nextOriginal.lowercase()
 
-            if (nextLower.isNotEmpty()) {
-                val combinedLower = "$lower $nextLower"
-                if (keywords.containsKey(combinedLower)) {
-                    lower = combinedLower
-                } else {
-                    // not a known pair -> revert
-                    current = saved
-                }
+            while (peek().isLetter()) advance()
+            val nextWord = source.substring(nextWordStart, current).lowercase()
+
+            val combined = "$lower $nextWord"
+            if (keywords.containsKey(combined)) {
+                lower = combined
             } else {
                 current = saved
             }
         }
 
-        val keywordType = keywords[lower]
-        if (keywordType != null) {
-            addToken(keywordType)
-        } else {
-            // Not a keyword => IDENTIFIER (case-sensitive name)
-            addToken(TokenType.IDENTIFIER, original)
-        }
+        val type = keywords[lower]
+        if (type != null) addToken(type)
+        else addToken(TokenType.IDENTIFIER, original) // case-sensitive
     }
 
     private fun skipWhitespace() {
@@ -118,8 +117,7 @@ class Scanner(private val source: String) {
             error("Unterminated string.")
             return
         }
-        advance() // closing quote
-
+        advance()
         val value = source.substring(start + 1, current - 1)
         addToken(TokenType.STRING, value)
     }
@@ -145,8 +143,7 @@ class Scanner(private val source: String) {
     private fun isAtEnd() = current >= source.length
 
     private fun addToken(type: TokenType, literal: Any? = null) {
-        val text = source.substring(start, current)
-        tokens.add(Token(type, text, literal, line))
+        tokens.add(Token(type, source.substring(start, current), literal, line))
     }
 
     private fun error(message: String) {

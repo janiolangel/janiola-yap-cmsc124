@@ -5,10 +5,11 @@ enum class TokenType {
     SEMICOLON,
 
     // Gen Z verbs (expressions)
-    MIX, TAKE_AWAY, COMBINE, SHARE, FLIP, CHECK_IF,
+    MIX, TAKE_AWAY, MULTIPLY, DIVIDE, FLIP, CHECK_IF,
 
     // Statement keywords
     REMEMBER, SET, PRINT, AS, TO,
+    THE, VALUE, WHEN, YOU,
 
     // Connectors for expressions
     AND, FROM, WITH,

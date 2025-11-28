@@ -5,7 +5,7 @@ class Environment(private val enclosing: Environment? = null) {
         values[name] = value
     }
 
-    fun get(name: Token): Any? {
+    fun get(name: Token): Any? { //FETCHING VARIABLES
         if (values.containsKey(name.lexeme)) {
             return values[name.lexeme]
         }
@@ -13,7 +13,7 @@ class Environment(private val enclosing: Environment? = null) {
         throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
     }
 
-    fun assign(name: Token, value: Any?) {
+    fun assign(name: Token, value: Any?) { //ASSIGNING VARIABLES
         if (values.containsKey(name.lexeme)) {
             values[name.lexeme] = value
             return

@@ -1,60 +1,100 @@
 import java.io.File
 
-fun main(args: Array<String>) {
+fun main(args: Array<String>) {         // determines whether to run REPL or execute a file
     val evaluator = Evaluator()
 
     when (args.size) {
-        0 -> runRepl(evaluator)
-        1 -> runFile(args[0], evaluator)
-        else -> {
-            println("Usage: genz-language [script]")
+        0 -> {                          // no args → interactive REPL mode
+            evaluator.isRepl = true
+            runRepl(evaluator)
         }
+        1 -> {                          // one arg → execute file
+            evaluator.isRepl = false
+            runFile(args[0], evaluator)
+        }
+        else -> println("Usage: genz [script]")   // invalid args → show usage
     }
 }
+
+fun runFile(path: String, evaluator: Evaluator) {
+    val source = File(path).readText()
+
+    val scanner = Scanner(source)
+    val tokens = scanner.scanTokens()
+
+    val parser = Parser(tokens)
+    val statement = parser.parse()
+
+    try {
+        evaluator.interpret(statement)
+    } catch (err: RuntimeError) {
+        println("[line ${err.token.line}] Runtime error: ${err.message}")
+    }
+}
+
 
 private fun runRepl(evaluator: Evaluator) {
     var buffer = StringBuilder()
     var braceBalance = 0
 
     while (true) {
-        // show different prompts depending on mode
         val prompt = if (braceBalance > 0) ". " else "> "
         print(prompt)
 
         val line = readlnOrNull() ?: break
+        val trimmed = line.trim()
 
-        if (line.isBlank() && braceBalance == 0) continue
+        // skip empty lines outside block
+        if (trimmed.isEmpty() && braceBalance == 0) continue
 
-        // add this line to the buffer
         buffer.append(line).append("\n")
 
-        // count braces in this line
+        // update brace count for blocks
         braceBalance += line.count { it == '{' }
         braceBalance -= line.count { it == '}' }
 
-        // only run when all braces matched
-        if (braceBalance == 0) {
-            val source = buffer.toString()
-            buffer = StringBuilder()
-            run(source, evaluator)
+        // if inside a block → keep reading
+        if (braceBalance > 0) continue
+
+        // if we reach here, braces are balanced → time to run
+
+        var source = buffer.toString().trim()
+        buffer = StringBuilder() // Reset buffer
+
+        // if it doesn't end in semicolon AND does not start with a statement
+        // treat as an expression → append semicolon
+        val lower = source.lowercase()
+
+        val startsLikeStatement =
+            lower.startsWith("remember ") ||
+                    lower.startsWith("set ") ||
+                    lower.startsWith("print ") ||
+                    lower.startsWith("{") ||
+                    lower.startsWith("}")
+
+        if (!startsLikeStatement && !source.endsWith(";")) {
+            source += ";"
         }
+        // -------------------------------------------------------------------
+
+        run(source, evaluator)
     }
 }
 
-private fun runFile(path: String, evaluator: Evaluator) {
-    val source = File(path).readText()
-    run(source, evaluator)
-}
+//private fun runFile(path: String, evaluator: Evaluator) {
+//    val source = File(path).readText()
+//    run(source, evaluator)
+//}
 
 private fun run(source: String, evaluator: Evaluator) {
     val scanner = Scanner(source)
     val tokens = scanner.scanTokens()
 
     val parser = Parser(tokens)
-    val statements = parser.parse()
+    val statement = parser.parse()
 
     try {
-        evaluator.interpret(statements)
+        evaluator.interpret(statement)
     } catch (err: RuntimeError) {
         println("[line ${err.token.line}] Runtime error: ${err.message}")
     }

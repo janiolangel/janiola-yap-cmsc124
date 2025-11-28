@@ -17,18 +17,18 @@ sealed class Stmt {
 class Parser(private val tokens: List<Token>) {
     private var current = 0
 
-    fun parse(): List<Stmt> {
-        val statements = mutableListOf<Stmt>()
-        while (!isAtEnd()) {
-            statements.add(declaration())
+    fun parse(): Stmt? {
+        return try {
+            declaration()   // returns ONE statement
+        } catch (e: ParseError) {
+            null
         }
-        return statements
     }
 
     // ------ Declarations & Statements ------
 
     private fun declaration(): Stmt {
-        return try {
+        return try { //VARIABLE DECLARATION
             if (match(TokenType.REMEMBER)) return rememberDeclaration()
             statement()
         } catch (e: ParseError) {
@@ -46,9 +46,10 @@ class Parser(private val tokens: List<Token>) {
         return Stmt.Var(name, initializer)
     }
 
-    private fun statement(): Stmt {
+    private fun statement(): Stmt { //PRINT STATEMENT STEP 1
         return when {
             match(TokenType.PRINT) -> printStatement()
+            // VARIABLE ASSIGNMENT
             match(TokenType.SET) -> setStatement()
             match(TokenType.LEFT_BRACE) -> Stmt.Block(block())
             else -> exprStatement()
@@ -64,10 +65,20 @@ class Parser(private val tokens: List<Token>) {
     private fun setStatement(): Stmt {
         val name = consume(TokenType.IDENTIFIER, "Expect variable name after 'set'.")
         consume(TokenType.TO, "Expect 'to' after variable name.")
+
+        // Optional sugar: "the value when you"
+        if (match(TokenType.THE)) {
+            consume(TokenType.VALUE, "Expect 'value' after 'the'.")
+            consume(TokenType.WHEN, "Expect 'when' after 'value'.")
+            consume(TokenType.YOU, "Expect 'you' after 'when'.")
+        }
+
         val value = expression()
         consume(TokenType.SEMICOLON, "Expect ';' after set statement.")
+
         return Stmt.Set(name, value)
     }
+
 
     private fun block(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
@@ -90,15 +101,15 @@ class Parser(private val tokens: List<Token>) {
 
     // <Step> ::= "Mix" <Value> "and" <Value>
     //          | "Take away" <Value> "from" <Value>
-    //          | "Combine" <Value> "and" <Value>
-    //          | "Share" <Value> "with" <Value>
+    //          | "Multiply" <Value> "and" <Value>
+    //          | "Divide" <Value> "with" <Value>
     //          | "Flip" <Value>
     //          | "Check if" <Value> <Inequality> <Value>
     //          | <Value>
 
-    private fun step(): Expr {
+    private fun step(): Expr { //OPERATOR PRECEDENCE
         return when {
-            match(TokenType.MIX) -> {
+            match(TokenType.MIX) -> { //BINARY EXPRESSION STEP 1
                 val operator = previous()
                 val left = value()
                 consume(TokenType.AND, "Expect 'and' after first value.")
@@ -110,23 +121,23 @@ class Parser(private val tokens: List<Token>) {
                 val left = value()
                 consume(TokenType.FROM, "Expect 'from' after first value.")
                 val right = value()
-                Expr.Binary(left, operator, right)
+                Expr.Binary(right, operator, left)
             }
-            match(TokenType.COMBINE) -> {
+            match(TokenType.MULTIPLY) -> {
                 val operator = previous()
                 val left = value()
                 consume(TokenType.AND, "Expect 'and' after first value.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
-            match(TokenType.SHARE) -> {
+            match(TokenType.DIVIDE) -> {
                 val operator = previous()
                 val left = value()
                 consume(TokenType.WITH, "Expect 'with' after first value.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
-            match(TokenType.FLIP) -> {
+            match(TokenType.FLIP) -> {  //UNARY EXPRESSIONS STEP 1
                 val operator = previous()
                 val right = value()
                 Expr.Unary(operator, right)
@@ -144,7 +155,7 @@ class Parser(private val tokens: List<Token>) {
         }
     }
 
-    private fun value(): Expr {
+    private fun value(): Expr {     // LITERAL VALUES
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return Expr.Literal(previous().literal)
         }
@@ -153,7 +164,7 @@ class Parser(private val tokens: List<Token>) {
             return Expr.Variable(previous())
         }
 
-        if (match(TokenType.LEFT_PAREN)) {
+        if (match(TokenType.LEFT_PAREN)) { //GROUPING STEP 1
             val expr = expression()
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Expr.Grouping(expr)
