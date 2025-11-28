@@ -13,11 +13,31 @@ fun main(args: Array<String>) {
 }
 
 private fun runRepl(evaluator: Evaluator) {
+    var buffer = StringBuilder()
+    var braceBalance = 0
+
     while (true) {
-        print("> ")
+        // show different prompts depending on mode
+        val prompt = if (braceBalance > 0) ". " else "> "
+        print(prompt)
+
         val line = readlnOrNull() ?: break
-        if (line.isBlank()) continue
-        run(line, evaluator)
+
+        if (line.isBlank() && braceBalance == 0) continue
+
+        // add this line to the buffer
+        buffer.append(line).append("\n")
+
+        // count braces in this line
+        braceBalance += line.count { it == '{' }
+        braceBalance -= line.count { it == '}' }
+
+        // only run when all braces matched
+        if (braceBalance == 0) {
+            val source = buffer.toString()
+            buffer = StringBuilder()
+            run(source, evaluator)
+        }
     }
 }
 
@@ -39,3 +59,4 @@ private fun run(source: String, evaluator: Evaluator) {
         println("[line ${err.token.line}] Runtime error: ${err.message}")
     }
 }
+
