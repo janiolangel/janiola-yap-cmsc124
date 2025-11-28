@@ -4,6 +4,35 @@ class Scanner(private val source: String) {
     private var current = 0
     private var line = 1
 
+    // All keyword keys are lowercase (case-insensitive)
+    private val keywords = mapOf(
+        // expressions
+        "mix" to TokenType.MIX,
+        "take away" to TokenType.TAKE_AWAY,
+        "multiply" to TokenType.MULTIPLY,
+        "divide" to TokenType.DIVIDE,
+        "flip" to TokenType.FLIP,
+        "check if" to TokenType.CHECK_IF,
+
+        // statements
+        "remember" to TokenType.REMEMBER,
+        "set" to TokenType.SET,
+        "print" to TokenType.PRINT,
+        "as" to TokenType.AS,
+        "to" to TokenType.TO,
+
+        // natural language sugar
+        "the" to TokenType.THE,
+        "value" to TokenType.VALUE,
+        "when" to TokenType.WHEN,
+        "you" to TokenType.YOU,
+
+        // connectors
+        "and" to TokenType.AND,
+        "from" to TokenType.FROM,
+        "with" to TokenType.WITH
+    )
+
     fun scanTokens(): List<Token> {
         while (!isAtEnd()) {
             start = current
@@ -15,58 +44,82 @@ class Scanner(private val source: String) {
 
     private fun scanToken() {
         val c = advance()
-        when (c) {
-            '(' -> addToken(TokenType.LEFT_PAREN)
-            ')' -> addToken(TokenType.RIGHT_PAREN)
-            '{' -> addToken(TokenType.LEFT_BRACE)
-            '}' -> addToken(TokenType.RIGHT_BRACE)
-            ',' -> addToken(TokenType.COMMA)
-            '.' -> addToken(TokenType.DOT)
-            '-' -> addToken(TokenType.MINUS)
-            '+' -> addToken(TokenType.PLUS)
-            ';' -> addToken(TokenType.SEMICOLON)
-            '*' -> addToken(TokenType.STAR)
-
-            // Slash → division OR comment
-            '/' -> {
-                if (match('/')) {
-                    // Single-line comment: skip until newline
-                    while (peek() != '\n' && !isAtEnd()) advance()
-                } else if (match('*')) {
-                    // Multi-line comment: skip until */
-                    while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
-                        if (peek() == '\n') line++
-                        advance()
-                    }
-                    if (!isAtEnd()) {
-                        advance() // consume '*'
-                        advance() // consume '/'
-                    }
-                } else {
-                    addToken(TokenType.SLASH)
-                }
+        when {
+            c.isWhitespace() -> {
+                if (c == '\n') line++
             }
+            c.isDigit() -> number()
+            c == '"' -> string()
+            c.isLetter() -> identifier()
 
-            '=' -> addToken(if (match('=')) TokenType.EQUAL_EQUAL else TokenType.EQUAL)
-            '!' -> addToken(if (match('=')) TokenType.BANG_EQUAL else TokenType.BANG)
-            '<' -> addToken(if (match('=')) TokenType.LESS_EQUAL else TokenType.LESS)
-            '>' -> addToken(if (match('=')) TokenType.GREATER_EQUAL else TokenType.GREATER)
+            c == '{' -> addToken(TokenType.LEFT_BRACE)
+            c == '}' -> addToken(TokenType.RIGHT_BRACE)
+            c == '(' -> addToken(TokenType.LEFT_PAREN)
+            c == ')' -> addToken(TokenType.RIGHT_PAREN)
+            c == ';' -> addToken(TokenType.SEMICOLON)
 
-            '"' -> string()
-            in '0'..'9' -> number()
+            c == '>' -> addToken(TokenType.GREATER)
+            c == '<' -> addToken(TokenType.LESS)
+            c == '=' && match('=') -> addToken(TokenType.EQUAL_EQUAL)
 
-            // Ignore whitespace
-            ' ', '\r', '\t' -> {}
-            '\n' -> line++
+            else -> error("Unexpected character '$c'")
+        }
+    }
 
-            else -> {
-                if (isAlpha(c)) {
-                    identifier()
-                } else {
-                    error("Unexpected character: $c")
-                }
+    private fun identifier() {
+        while (peek().isLetterOrDigit() || peek() == '_') advance()
+
+        val original = source.substring(start, current)
+        var lower = original.lowercase()
+
+        // handle two-word keywords like "take away", "check if"
+        if (peek().isWhitespace()) {
+            val saved = current
+            skipWhitespace()
+            val nextWordStart = current
+
+            while (peek().isLetter()) advance()
+            val nextWord = source.substring(nextWordStart, current).lowercase()
+
+            val combined = "$lower $nextWord"
+            if (keywords.containsKey(combined)) {
+                lower = combined
+            } else {
+                current = saved
             }
         }
+
+        val type = keywords[lower]
+        if (type != null) addToken(type)
+        else addToken(TokenType.IDENTIFIER, original) // case-sensitive
+    }
+
+    private fun skipWhitespace() {
+        while (peek().isWhitespace() && peek() != '\n') advance()
+    }
+
+    private fun number() {
+        while (peek().isDigit()) advance()
+        if (peek() == '.' && peekNext().isDigit()) {
+            advance()
+            while (peek().isDigit()) advance()
+        }
+        val value = source.substring(start, current).toDouble()
+        addToken(TokenType.NUMBER, value)
+    }
+
+    private fun string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++
+            advance()
+        }
+        if (isAtEnd()) {
+            error("Unterminated string.")
+            return
+        }
+        advance()
+        val value = source.substring(start + 1, current - 1)
+        addToken(TokenType.STRING, value)
     }
 
     private fun advance(): Char {
@@ -81,71 +134,18 @@ class Scanner(private val source: String) {
         return true
     }
 
-    private fun peek(): Char {
-        if (isAtEnd()) return '\u0000'
-        return source[current]
-    }
+    private fun peek(): Char =
+        if (isAtEnd()) '\u0000' else source[current]
 
-    private fun peekNext(): Char {
-        if (current + 1 >= source.length) return '\u0000'
-        return source[current + 1]
-    }
+    private fun peekNext(): Char =
+        if (current + 1 >= source.length) '\u0000' else source[current + 1]
 
-    private fun isAtEnd(): Boolean = current >= source.length
+    private fun isAtEnd() = current >= source.length
 
     private fun addToken(type: TokenType, literal: Any? = null) {
-        val text = source.substring(start, current)
-        tokens.add(Token(type, text, literal, line))
+        tokens.add(Token(type, source.substring(start, current), literal, line))
     }
 
-    // ---- String handling ----
-    private fun string() {
-        while (peek() != '"' && !isAtEnd()) {
-            if (peek() == '\n') line++
-            advance()
-        }
-
-        if (isAtEnd()) {
-            error("Unterminated string.")
-            return
-        }
-
-        advance() // closing quote
-        val value = source.substring(start + 1, current - 1)
-        addToken(TokenType.STRING, value)
-    }
-
-    // ---- Number handling ----
-    private fun number() {
-        while (peek().isDigit()) advance()
-
-        if (peek() == '.' && peekNext().isDigit()) {
-            advance()
-            while (peek().isDigit()) advance()
-        }
-
-        val value = source.substring(start, current).toDouble()
-        addToken(TokenType.NUMBER, value)
-    }
-
-    // ---- Identifiers & keywords ----
-    private fun identifier() {
-        while (isAlphaNumeric(peek())) advance()
-
-        val text = source.substring(start, current)
-        val type = keywords[text] ?: TokenType.IDENTIFIER
-        addToken(type)
-    }
-
-    private fun isAlpha(c: Char): Boolean {
-        return c.isLetter() || c == '_'
-    }
-
-    private fun isAlphaNumeric(c: Char): Boolean {
-        return isAlpha(c) || c.isDigit()
-    }
-
-    // ---- Error handling ----
     private fun error(message: String) {
         println("[Line $line] Error: $message")
     }

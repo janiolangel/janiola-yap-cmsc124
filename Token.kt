@@ -1,30 +1,30 @@
-// fixed list of possible token types)
 enum class TokenType {
-    // Single-character tokens
+    // Structure
     LEFT_PAREN, RIGHT_PAREN,
     LEFT_BRACE, RIGHT_BRACE,
-    COMMA, DOT, MINUS, PLUS,
-    SEMICOLON, SLASH, STAR,
-    EQUAL, LESS, GREATER, BANG,
+    SEMICOLON,
 
-    // Multi-character operators
-    EQUAL_EQUAL,
-    BANG_EQUAL,
-    LESS_EQUAL,
-    GREATER_EQUAL,
+    // Gen Z verbs (expressions)
+    MIX, TAKE_AWAY, MULTIPLY, DIVIDE, FLIP, CHECK_IF,
 
-    // Literals
+    // Statement keywords
+    REMEMBER, SET, PRINT, AS, TO,
+    THE, VALUE, WHEN, YOU,
+
+    // Connectors for expressions
+    AND, FROM, WITH,
+
+    // Comparison
+    GREATER, LESS, EQUAL_EQUAL,
+
+    // Literals / identifiers
     IDENTIFIER,
     STRING,
     NUMBER,
 
-    // Keywords
-    VAR, IF, ELSE, WHILE, FOR, RETURN,
-
     EOF
 }
 
-// the actual data
 data class Token(
     val type: TokenType,
     val lexeme: String,
