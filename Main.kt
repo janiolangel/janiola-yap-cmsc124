@@ -49,7 +49,7 @@ private fun runRepl(evaluator: Evaluator) {
 
         buffer.append(line).append("\n")
 
-        // update brace count for blocks
+        // update brace count for blocks3
         braceBalance += line.count { it == '{' }
         braceBalance -= line.count { it == '}' }
 
@@ -80,11 +80,6 @@ private fun runRepl(evaluator: Evaluator) {
         run(source, evaluator)
     }
 }
-
-//private fun runFile(path: String, evaluator: Evaluator) {
-//    val source = File(path).readText()
-//    run(source, evaluator)
-//}
 
 private fun run(source: String, evaluator: Evaluator) {
     val scanner = Scanner(source)

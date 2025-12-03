@@ -1,3 +1,50 @@
+class ReturnException(val value: Any?) : RuntimeException(null, null, false, false)
+
+interface GCallable {
+    fun arity(): Int
+    fun call(evaluator: Evaluator, arguments: List<Any?>): Any?
+}
+
+class GFunction(private val declaration: Stmt.Function, private val closure: Environment) : GCallable {
+    override fun arity() = declaration.params.size
+
+    override fun call(evaluator: Evaluator, arguments: List<Any?>): Any? {
+        val env = Environment(closure)
+        for (i in declaration.params.indices) {
+            env.define(declaration.params[i].lexeme, arguments[i])
+        }
+        try {
+            evaluator.executeBlock(declaration.body, env)
+        } catch (ret: ReturnException) {
+            return ret.value
+        }
+        return null
+    }
+
+    override fun toString(): String {
+        return "<recipe ${declaration.name.lexeme}>"
+    }
+}
+
+class NativeClock : GCallable {
+    override fun arity() = 0
+    override fun call(evaluator: Evaluator, arguments: List<Any?>): Any? {
+        return System.currentTimeMillis() / 1000.0
+    }
+
+    override fun toString(): String = "<native clock>"
+}
+
+class NativePrint : GCallable {
+    override fun arity() = 1
+    override fun call(evaluator: Evaluator, arguments: List<Any?>): Any? {
+        println(evaluator.stringify(arguments[0]))
+        return null
+    }
+
+    override fun toString(): String = "<native print>"
+}
+
 class Evaluator {
 
     private val globals = Environment()
@@ -5,10 +52,15 @@ class Evaluator {
 
     var isRepl: Boolean = false
 
+    init {
+        // Add native functions
+        globals.define("clock", NativeClock())
+        globals.define("print", NativePrint())
+    }
+
     fun interpret(statement: Stmt?) {
         if (statement != null) execute(statement)
     }
-
 
     private fun execute(stmt: Stmt) {
         when (stmt) {
@@ -17,7 +69,7 @@ class Evaluator {
                 evaluate(stmt.expression)
             }
 
-            is Stmt.Print -> { //PRINT STATEMENT STEP 2
+            is Stmt.Print -> { //PRINT STATEMENT
                 val value = evaluate(stmt.expression)
                 println(stringify(value))
             }
@@ -32,6 +84,29 @@ class Evaluator {
             is Stmt.Block -> {
                 executeBlock(stmt.statements, Environment(environment))
             }
+            is Stmt.If -> {
+                val cond = evaluate(stmt.condition)
+                if (isTruthy(cond)) {
+                    execute(stmt.thenBranch)
+                } else {
+                    if (stmt.elseBranch != null) execute(stmt.elseBranch)
+                }
+            }
+            is Stmt.While -> {
+                while (isTruthy(evaluate(stmt.condition))) {
+                    execute(stmt.body)
+                }
+            }
+            is Stmt.Function -> {
+                val function = GFunction(stmt, environment)
+                environment.define(stmt.name.lexeme, function)
+            }
+            is Stmt.Return -> {
+                val value = if (stmt.value != null) evaluate(stmt.value) else null
+                throw ReturnException(value)
+            }
+
+            else -> {}
         }
     }
 
@@ -53,13 +128,13 @@ class Evaluator {
         return when (expr) {
             is Expr.Literal -> expr.value
 
-            is Expr.Grouping -> evaluate(expr.expression) //GROUPING STEP 2
+            is Expr.Grouping -> evaluate(expr.expression) //GROUPING
 
-            is Expr.Unary -> { //UNARY EXPRESSION STEP 2
+            is Expr.Unary -> { //UNARY
                 val right = evaluate(expr.right)
                 when (expr.operator.type) {
                     TokenType.FLIP -> {
-                        checkNumberOperand(expr.operator, right) //DETE
+                        checkNumberOperand(expr.operator, right)
                         -(right as Double)
                     }
                     else -> "incorrect syntax"
@@ -76,36 +151,26 @@ class Evaluator {
                         if (left is Double && right is Double) return left + right
                         if (left is String && right is String) return left + right
 
-                        // REMOVE THESE:
                         if (left is String && right is Double) return left + stringify(right)
                         if (left is Double && right is String) return stringify(left) + right
 
                         throw RuntimeError(expr.operator, "Mix requires two numbers or two strings.")
                     }
 
-
                     TokenType.TAKE_AWAY -> {
-
-                        // number - number
                         if (left is Double && right is Double) {
                             return left - right
                         }
-
-                        // string remove number
                         if (left is String && right is Double) {
                             val removeWhat = right.toInt().toString()
                             return left.replace(removeWhat, "")
                         }
-
-                        // string remove string
                         if (left is String && right is String) {
                             return left.replace(right, "")
                         }
-
                         throw RuntimeError(expr.operator,
                             "Take away requires two numbers or a string and a removable value.")
                     }
-
 
                     TokenType.MULTIPLY -> {
                         checkNumberOperands(expr.operator, left, right)
@@ -137,6 +202,29 @@ class Evaluator {
                 }
             }
 
+            is Expr.Logical -> {
+                val left = evaluate(expr.left)
+                if (expr.operator.type == TokenType.OR) {
+                    if (isTruthy(left)) return left
+                } else { // AND
+                    if (!isTruthy(left)) return left
+                }
+                return evaluate(expr.right)
+            }
+
+            is Expr.Call -> {
+                val callee = evaluate(expr.callee)
+                val arguments = expr.arguments.map { evaluate(it) }
+
+                if (callee !is GCallable) {
+                    throw RuntimeError(expr.paren, "Can only call functions and native callables.")
+                }
+                if (arguments.size != callee.arity()) {
+                    throw RuntimeError(expr.paren,
+                        "Expected ${callee.arity()} arguments but got ${arguments.size}.")
+                }
+                return callee.call(this, arguments)
+            }
 
             is Expr.Variable -> environment.get(expr.name)
         }
@@ -152,7 +240,11 @@ class Evaluator {
         return value.toString()
     }
 
-    //DETECT WHEN OPERANDS HAVE INCORRECT TYPE FOR OPERATORS
+    private fun isTruthy(value: Any?): Boolean {
+        if (value == null) return false
+        if (value is Boolean) return value
+        return true
+    }
 
     private fun checkNumberOperand(operator: Token, operand: Any?) {
         if (operand is Double) return

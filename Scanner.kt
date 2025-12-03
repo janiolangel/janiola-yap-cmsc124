@@ -4,7 +4,7 @@ class Scanner(private val source: String) {
     private var current = 0
     private var line = 1
 
-    // All keyword keys are lowercase (case-insensitive)
+    // all keyword keys are lowercase (case-insensitive)
     private val keywords = mapOf(
         // expressions
         "mix" to TokenType.MIX,
@@ -27,10 +27,19 @@ class Scanner(private val source: String) {
         "when" to TokenType.WHEN,
         "you" to TokenType.YOU,
 
+        // cookbook-style control flow (your choice)
+        "when" to TokenType.IF,          // cookbook 'when' -> if
+        "otherwise" to TokenType.ELSE,   // cookbook 'otherwise' -> else
+        "repeat" to TokenType.WHILE,     // 'repeat' -> while
+        "for" to TokenType.FOR,          // 'for' -> for
+        "recipe" to TokenType.FUN,       // 'recipe' -> function
+        "serve" to TokenType.RETURN,     // 'serve' -> return
+
         // connectors
         "and" to TokenType.AND,
         "from" to TokenType.FROM,
-        "with" to TokenType.WITH
+        "with" to TokenType.WITH,
+        "or" to TokenType.OR
     )
 
     fun scanTokens(): List<Token> {
@@ -57,6 +66,7 @@ class Scanner(private val source: String) {
             c == '(' -> addToken(TokenType.LEFT_PAREN)
             c == ')' -> addToken(TokenType.RIGHT_PAREN)
             c == ';' -> addToken(TokenType.SEMICOLON)
+            c == ',' -> addToken(TokenType.COMMA)
 
             c == '>' -> addToken(TokenType.GREATER)
             c == '<' -> addToken(TokenType.LESS)
