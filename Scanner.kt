@@ -21,11 +21,11 @@ class Scanner(private val source: String) {
         "as" to TokenType.AS,
         "to" to TokenType.TO,
 
-        // natural language sugar
-        "the" to TokenType.THE,
-        "value" to TokenType.VALUE,
-        "when" to TokenType.WHEN,
-        "you" to TokenType.YOU,
+//        // natural language sugar
+//        "the" to TokenType.THE,
+//        "value" to TokenType.VALUE,
+//        "when" to TokenType.WHEN,
+//        "you" to TokenType.YOU,
 
         // cookbook-style control flow (your choice)
         "when" to TokenType.IF,          // cookbook 'when' -> if
@@ -39,7 +39,12 @@ class Scanner(private val source: String) {
         "and" to TokenType.AND,
         "from" to TokenType.FROM,
         "with" to TokenType.WITH,
-        "or" to TokenType.OR
+        "or" to TokenType.OR,
+
+        // boolean
+        "true" to TokenType.TRUE,
+        "false" to TokenType.FALSE,
+
     )
 
     fun scanTokens(): List<Token> {
@@ -98,6 +103,7 @@ class Scanner(private val source: String) {
                 current = saved
             }
         }
+
 
         val type = keywords[lower]
         if (type != null) addToken(type)
