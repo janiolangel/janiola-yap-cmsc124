@@ -25,25 +25,36 @@ class Parser(private val tokens: List<Token>) {
     private var current = 0
 
     fun parse(): Stmt? {
-        return try {
-            declaration()   // returns ONE statement
-        } catch (e: ParseError) {
-            null
+        val statements = mutableListOf<Stmt>()
+
+        while (!isAtEnd()) {
+            try {
+                statements.add(declaration())
+            } catch (e: ParseError) {
+                synchronize()   // skip bad tokens and continue
+            }
         }
+
+        // Wrap all top-level statements inside a synthetic block
+        return Stmt.Block(statements)
     }
+
+
+
+
 
     // ------ Declarations & Statements ------
 
     private fun declaration(): Stmt {
         return try {
             if (match(TokenType.REMEMBER)) return rememberDeclaration()
-            if (match(TokenType.FUN)) return function("function")
+            if (match(TokenType.FUN)) return function("recipe")
             statement()
         } catch (e: ParseError) {
-            synchronize()
             Stmt.Expression(Expr.Literal(null))
         }
     }
+
 
     private fun rememberDeclaration(): Stmt {
         val name = consume(TokenType.IDENTIFIER, "Expect variable name after 'remember'.")
@@ -151,20 +162,23 @@ class Parser(private val tokens: List<Token>) {
         if (!check(TokenType.SEMICOLON)) condition = expression()
         consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
         var increment: Expr? = null
-        if (!check(TokenType.RIGHT_PAREN)) increment = expression()
+        if (!check(TokenType.RIGHT_PAREN)) {
+            increment = expression()
+        }
         consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
-        val body = statement()
+        var body = statement()
 
         // Desugar into while:
-        var blockStmts = mutableListOf<Stmt>()
-        if (initializer != null) blockStmts.add(initializer)
-        val whileBodyStmts = mutableListOf<Stmt>()
-        whileBodyStmts.add(body)
-        if (increment != null) whileBodyStmts.add(Stmt.Expression(increment))
-        val whileBody = Stmt.Block(whileBodyStmts)
+        if (increment != null) {
+            body = Stmt.Block(listOf(body, Stmt.Expression(increment)))
+        }
         val cond = condition ?: Expr.Literal(true)
-        blockStmts.add(Stmt.While(cond, whileBody))
-        return Stmt.Block(blockStmts)
+        val whileStmt = Stmt.While(cond, body)
+
+        if (initializer != null) {
+            return Stmt.Block(listOf(initializer, whileStmt))
+        }
+        return whileStmt
     }
 
     private fun returnStatement(): Stmt {
@@ -291,6 +305,8 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return Expr.Literal(previous().literal)
         }
+        if (match(TokenType.TRUE)) return Expr.Literal(true)
+        if (match(TokenType.FALSE)) return Expr.Literal(false)
 
         if (match(TokenType.IDENTIFIER)) {
             return Expr.Variable(previous())
