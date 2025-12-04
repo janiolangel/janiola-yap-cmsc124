@@ -154,7 +154,11 @@ class Evaluator {
                         if (left is String && right is Double) return left + stringify(right)
                         if (left is Double && right is String) return stringify(left) + right
 
-                        throw RuntimeError(expr.operator, "Mix requires two numbers or two strings.")
+                        // Add this for any other type combinations
+                        if (left is String) return left + stringify(right)
+                        if (right is String) return stringify(left) + right
+
+                        throw RuntimeError(expr.operator, "Mix requires compatible types.")
                     }
 
                     TokenType.TAKE_AWAY -> {
