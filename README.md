@@ -1,84 +1,239 @@
-1. How is a variable declared?
-   Our implemented programming language is named StepScript to emphasize its step-by-step, recipe-like approach to coding. The language is designed for simplicity and ease of use, allowing both beginners and experienced programmers to engage with it comfortably. Variable declaration follows a natural and intuitive style. For example: "remember x as 10;" is similar to telling someone to remember an ingredient for later use. By keeping declarations this readable, StepScript allows beginners to focus on understanding the flow of their program rather than struggling with strict syntax rules.
+# **StepScript Programming Language Specification**
 
-2. What keywords are reserved by the programming language?
-   a) Operation keywords: Mix, Take away from, Multiply, Divide, Flip, Check if
-   b) Comparison operators: > , < , ==
-   c) Control Flow Keywords:
-         Conditionals: when, otherwise
-         Loops: repeat, for
-         Functions: recipe, serve
-         Assignment: set, to
-         Connectors: and, from, by, or
-   d) Boolean Literals: true, false
-   e) Other Structural Tokens: parentheses, braces, comma, semicolon
+**Creators:** 
+---
+Angel May Janiola & Mae Maricar Yap
 
-4. Is whitespace significant? Or is it bracketed like the C family of programming languages?
-   Whitespace is not significant in StepScript. Instead of relying on indentation, the language uses clear keywords, parentheses for conditions, and braces for blocks. This keeps the structure easy to read while avoiding the rigid whitespace requirements found in some other languages.
+---
 
-5. How are comments styled? Are nested or docstring-style comments allowed?
-   A single-line comment is written using a double slash (//), while a multi-line (block) comment is written using triple slashes (/* ... */).
+## **Language Overview**
 
-7. How does it do loops and other common language constructs?
-   StepScript uses readable, recipe-like phrasing for its control structures. It supports when and otherwise for conditionals, repeat for while loops, and for for counted loops.
+StepScript is a beginner-friendly programming language modeled after the clarity and flow of cookbook instructions. Its syntax emphasizes readability, step-by-step logic, and natural phrasing. Instead of symbolic expressions, StepScript uses intuitive keywords such as *Mix*, *Take away*, *Flip*, and *Check if* to guide new programmers through common computational operations.
 
-8. Why is it this way? What is the motivation behind your choices?
-   StepScript is inspired by cookbooks because they are clear, simple, and easy to follow. We designed the language to use natural instructions instead of complex symbols so beginners can learn without feeling overwhelmed. By keeping one clear way to express each idea, the language stays easy to read while still being powerful enough for real programs.
-   
--------------------------------------------------------------------------------
+The language supports variable declarations written in a conversational style (“remember x as 10;”), straightforward control flow structures, natural-language expressions, and recipe-like function definitions. Its goal is to enable learners to write programs without the cognitive load of strict or cryptic syntax.
 
-StepScript Operation Overview
-Addition = Mix
-Subtraction = Take away
-Multiplication = Multiply
-Division =  Divide
-Unary Minus = Flip
-Inequality = Check if
+---
 
-1. Addition Example:
-Expression: 1 + 2 →
-Step-by-step Evaluation:
-   Step 1: Mix 1 and 2 →
-   Result: 3
+## **Keywords**
 
-2. Subtraction Example: 
-Expression: 10 - 4 →
-Step-by-step Evaluation:
-   Step 1: Take away 4 from 10 →
-   Result: 6
+The following words and tokens are reserved and cannot be used as identifiers.
 
-3. Multiplication Example: 
-Expression: 2 * 3 →
-Step-by-step Evaluation:
-   Step 1: Multiply 2 and 3 →
-   Result: 6
+### **Operation Keywords**
 
-4. Division Example:
-Expression: 20 / 2 →
-Step-by-Step Evaluation:
-   Step 1: Divide 20 by 2 →
-   Result: 10
+* **Mix** — Addition
+* **Take away** — Subtraction
+* **Multiply** — Multiplication
+* **Divide** — Division
+* **Flip** — Unary negation
+* **Check if** — Inequality comparison
 
-5. Unary Minus Example:
-Expression: 3 →
-Step-by-Step Evaluation: 
-   Step 1: Flip 3 →
-   Result: -3
+### **Comparison Operators**
 
-6. Inequality Example:
-Expression: 5 > 3 →
-Step-by-Step Evaluation:
-   Step 1: Check if 5 > 3 →
-   Result: true
+* `>` — Greater than
+* `<` — Less than
+* `==` — Equality
 
--------------------------------------------------------------------------------
+### **Control Flow Keywords**
 
-Grammar: 
+**Conditionals:**
 
+* **when**, **otherwise**
+
+**Loops:**
+
+* **repeat**, **for**
+
+**Functions:**
+
+* **recipe** (function declaration)
+* **serve** (return value)
+
+**Assignment:**
+
+* **set**, **to**
+
+**Connectors:**
+
+* **and**, **from**, **by**, **or**
+
+### **Boolean Literals**
+
+* **true**, **false**
+
+### **Structural Tokens**
+
+* Parentheses `( )` for grouping and conditions
+* Braces `{ }` for blocks
+* Comma `,`
+* Semicolon `;`
+
+---
+
+## **Operators**
+
+### **Arithmetic / Step Operations**
+
+| Operation      | Keyword   | Example               |
+| -------------- | --------- | --------------------- |
+| Addition       | Mix       | `Mix 1 and 2`         |
+| Subtraction    | Take away | `Take away 4 from 10` |
+| Multiplication | Multiply  | `Multiply 2 and 3`    |
+| Division       | Divide    | `Divide 20 by 2`      |
+| Unary Minus    | Flip      | `Flip 3`              |
+
+### **Comparison**
+
+* `>`
+* `<`
+* `==`
+
+### **Logic**
+
+Expressed through **Check if** + comparison operator.
+
+---
+
+## **Literals**
+
+* **Numbers:** e.g., `10`, `3.5`
+* **Strings:** quoted text, e.g., `"Hello"`
+* **Booleans:** `true`, `false`
+* **Identifiers:** names for variables, functions, and parameters
+
+---
+
+## **Identifiers**
+
+* Must start with a letter or underscore.
+* Can contain letters, digits, or underscores.
+
+---
+
+## **Syntax Style**
+
+### **General Structure**
+
+* Whitespace **is** significant.
+* Blocks use braces `{ ... }`.
+* Statements end with semicolons `;`.
+* Conditions use parentheses `( )`.
+
+### **Variable Declaration**
+
+Uses natural-language phrasing:
+
+```
+remember x as 10;
+```
+
+### **Functions**
+
+Defined using the keyword **recipe**:
+
+```
+recipe add(a, b) {
+    serve Mix a and b;
+}
+```
+
+### **Control Flow**
+
+**Conditional**
+
+```
+when (Check if x > 5) {
+    ...
+} otherwise {
+    ...
+}
+```
+
+**Loops**
+
+```
+repeat (Check if x < 10) {
+    ...
+}
+
+for (i from 1 to 5) {
+    ...
+}
+```
+
+---
+
+## **Design Rationale**
+
+StepScript is built to mirror the clarity of cookbook recipes—step-by-step, concise, and readable. By using natural verbs and phrases instead of abstract symbols, beginners can focus on understanding algorithms rather than memorizing syntax. This reduces entry barriers for new programmers while preserving enough structure to write expressive, logical programs. The language intentionally uses one clear way to express each idea to minimize confusion and improve code readability.
+
+---
+
+## **Operation Examples**
+
+### **1. Addition**
+
+Expression: `1 + 2`
+Evaluation:
+
+```
+Step 1: Mix 1 and 2 →
+Result: 3
+```
+
+### **2. Subtraction**
+
+Expression: `10 - 4`
+
+```
+Take away 4 from 10 →
+Result: 6
+```
+
+### **3. Multiplication**
+
+Expression: `2 * 3`
+
+```
+Multiply 2 and 3 →
+Result: 6
+```
+
+### **4. Division**
+
+Expression: `20 / 2`
+
+```
+Divide 20 by 2 →
+Result: 10
+```
+
+### **5. Unary Minus**
+
+Expression: `-3`
+
+```
+Flip 3 →
+Result: -3
+```
+
+### **6. Inequality**
+
+Expression: `5 > 3`
+
+```
+Check if 5 > 3 →
+Result: true
+```
+
+---
+
+## **Grammar Specification**
+
+```
 Program:
     Statement*
-    
-Statement: 
+
+Statement:
       VarDecl
     | SetStmt
     | PrintStmt
@@ -89,21 +244,28 @@ Statement:
     | Block
     | ExprStmt
 
-FunctionDecl: recipe IDENTIFIER ( Parameters? ) Block
+FunctionDecl:
+    recipe IDENTIFIER (Parameters?) Block
 
-Block: { Statement }
+Block:
+    { Statement }
 
-Expr: LogicOr
+Expr:
+    LogicOr
 
-Value : NUMBER | STRING | TRUE | FALSE | IDENTIFIER | ( Expr )
+Value:
+    NUMBER | STRING | TRUE | FALSE | IDENTIFIER | (Expr)
 
 StepOperations:
-        "Mix" <Value> "and" <Value>
-      | "Take away" <Value> "from" <Value>
-      | "Multiply" <Value> "and" <Value>
-      | "Divide" <Value> "by" <Value>
-      | "Flip" <Value>
-      | "Check if" <Value> <Inequality> <Value>
+      "Mix" <Value> "and" <Value>
+    | "Take away" <Value> "from" <Value>
+    | "Multiply" <Value> "and" <Value>
+    | "Divide" <Value> "by" <Value>
+    | "Flip" <Value>
+    | "Check if" <Value> <Inequality> <Value>
 
-Inequality: ">" | "<" | "=="
+Inequality:
+    ">" | "<" | "=="
+```
 
+---
