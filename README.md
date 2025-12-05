@@ -35,40 +35,40 @@ Division =  Divide
 Unary Minus = Flip
 Inequality = Check if
 
-1. Addition Example
-Expression: 1 + 2
+1. Addition Example:
+Expression: 1 + 2 →
 Step-by-step Evaluation:
-   Step 1: Mix 1 and 2
+   Step 1: Mix 1 and 2 →
    Result: 3
 
-2. Subtraction Example
-Expression: 10 - 4
+2. Subtraction Example: 
+Expression: 10 - 4 →
 Step-by-step Evaluation:
-   Step 1: Take away 4 from 10
+   Step 1: Take away 4 from 10 →
    Result: 6
 
-3. Multiplication Example
-Expression: 2 * 3 
+3. Multiplication Example: 
+Expression: 2 * 3 →
 Step-by-step Evaluation:
-   Step 1: Multiply 2 and 3
+   Step 1: Multiply 2 and 3 →
    Result: 6
 
-4. Division Example
-Expression: 20 / 2
+4. Division Example:
+Expression: 20 / 2 →
 Step-by-Step Evaluation:
-   Step 1: Divide 20 by 2 
+   Step 1: Divide 20 by 2 →
    Result: 10
 
-5. Unary Minus Example
-Expression: 3
-Step-by-Step Evaluation:
-   Step 1: Flip 3
+5. Unary Minus Example:
+Expression: 3 →
+Step-by-Step Evaluation: 
+   Step 1: Flip 3 →
    Result: -3
 
-6. Inequality Example
-Expression: 5 > 3
+6. Inequality Example:
+Expression: 5 > 3 →
 Step-by-Step Evaluation:
-   Step 1: Check if 5 > 3
+   Step 1: Check if 5 > 3 →
    Result: true
 
 -------------------------------------------------------------------------------
