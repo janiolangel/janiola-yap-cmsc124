@@ -22,7 +22,7 @@ enum class TokenType {
     FUN, RETURN,        // "recipe" / "serve"
 
     // Connectors for expressions
-    AND, FROM, WITH, OR,
+    AND, FROM, BY, OR,
 
     // Comparison
     GREATER, LESS, EQUAL_EQUAL,
