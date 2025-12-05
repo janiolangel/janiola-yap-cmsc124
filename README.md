@@ -75,9 +75,7 @@ Step-by-Step Evaluation:
 
 Grammar: 
 
-<Program> ::= <Statement>*
-
-<Statement> ::=
+Statement: 
       <VarDecl>
     | <SetStmt>
     | <PrintStmt>
@@ -88,15 +86,15 @@ Grammar:
     | <Block>
     | <ExprStmt>
 
-<FunctionDecl> ::= "recipe" IDENTIFIER "(" <Parameters>? ")" <Block>
+FunctionDecl: "recipe" IDENTIFIER "(" <Parameters>? ")" <Block>
 
-<Block> ::= "{" <Statement>* "}"
+Block: "{" <Statement>* "}"
 
-<Expr> ::= <LogicOr>
+Expr: <LogicOr>
 
-<Value> ::= NUMBER | STRING | TRUE | FALSE | IDENTIFIER | "(" <Expr> ")"
+Value : NUMBER | STRING | TRUE | FALSE | IDENTIFIER | "(" <Expr> ")"
 
-<StepOperations> ::=
+StepOperations:
         "Mix" <Value> "and" <Value>
       | "Take away" <Value> "from" <Value>
       | "Multiply" <Value> "and" <Value>
@@ -104,5 +102,5 @@ Grammar:
       | "Flip" <Value>
       | "Check if" <Value> <Inequality> <Value>
 
-<Inequality> ::= ">" | "<" | "=="
+Inequality: ">" | "<" | "=="
 
