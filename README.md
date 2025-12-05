@@ -1,105 +1,108 @@
 1. How is a variable declared?
-   In our implemented programming language, we have named it "StepScript" to highlight its step-by-step algorithm. StepScript is crafted with simplicity and ease of use in mind, ensuring that both beginners and experienced programmers can engage with it effectively. We prioritize simplicity in our syntax, allowing learners to grasp concepts quickly. For example, to declare a variable, we simply say, "Remember X as 10," which makes the process intuitive and easy to understand. With StepScript, our goal is to create an engaging learning environment where students can focus on developing their programming skills without being overwhelmed by complex rules or syntax. 
+   Our implemented programming language is named StepScript to emphasize its step-by-step, recipe-like approach to coding. The language is designed for simplicity and ease of use, allowing both beginners and experienced programmers to engage with it comfortably. Variable declaration follows a natural and intuitive style. For example: "remember x as 10;" is similar to telling someone to remember an ingredient for later use. By keeping declarations this readable, StepScript allows beginners to focus on understanding the flow of their program rather than struggling with strict syntax rules.
 
 2. What keywords are reserved by the programming language?
-   Operation keywords:
-      - Mix, Take away from, Combine, Share with, Flip, Check if
+   a) Operation keywords: Mix, Take away from, Multiply, Divide, Flip, Check if
+   b) Comparison operators: > , < , ==
+   c) Control Flow Keywords:
+         Conditionals: when, otherwise
+         Loops: repeat, for
+         Functions: recipe, serve
+         Assignment: set, to
+         Connectors: and, from, by, or
+   d) Boolean Literals: true, false
+   e) Other Structural Tokens: parentheses, braces, comma, semicolon
 
-   Comparison operators:
-      > , < , ==
+4. Is whitespace significant? Or is it bracketed like the C family of programming languages?
+   Whitespace is not significant in StepScript. Instead of relying on indentation, the language uses clear keywords, parentheses for conditions, and braces for blocks. This keeps the structure easy to read while avoiding the rigid whitespace requirements found in some other languages.
 
-   Structural token:
-      and
-
-3. Is whitespace significant? Or is it bracketed like the C family of programming languages?
-   No, the whitespace is insignificant. It is also not enclosed in brackets since it is just a phrase.
-   This allows for a more natural and fluid expression of the concept.
-
-4. How are comments styled? Are nested or docstring-style comments allowed?
+5. How are comments styled? Are nested or docstring-style comments allowed?
    A single-line comment is written using a double slash (//), while a multi-line (block) comment is written using triple slashes (/* ... */).
 
 7. How does it do loops and other common language constructs?
-   It uses 'for' and 'while' loops to keep running while a condition is true and 'if' and 'else` for conditionals, allowing the program to branch into different paths, which together form the simplest and easiest core constructs for a language.
+   StepScript uses readable, recipe-like phrasing for its control structures. It supports when and otherwise for conditionals, repeat for while loops, and for for counted loops.
 
 8. Why is it this way? What is the motivation behind your choices?
-   We focus on readability and simplicity, choosing high-level features to eliminate unnecessary code. Its “one obvious way” approach makes it both beginner-friendly and powerful.
-
-
-
+   StepScript is inspired by cookbooks because they are clear, simple, and easy to follow. We designed the language to use natural instructions instead of complex symbols so beginners can learn without feeling overwhelmed. By keeping one clear way to express each idea, the language stays easy to read while still being powerful enough for real programs.
+   
 -------------------------------------------------------------------------------
-GenZ Step-by-Step 
-Operation
-Verb Used
-Addition
-Mix
-Subtraction
-Take away
-Multiplication
-Combine
-Division
-Share
-Unary Minus
-Flip
-Inequality
-Check if … →
+
+StepScript Operation Overview
+Addition = Mix
+Subtraction = Take away
+Multiplication = Multiply
+Division =  Divide
+Unary Minus = Flip
+Inequality = Check if
 
 1. Addition Example
-Expression: 1 + 2 + 3
-Step-by-Step Evaluation:
-Step 1: Mix 1 and 2 
-Step 2: Mix 3 and 3  
+Expression: 1 + 2
+Step-by-step Evaluation:
+   Step 1: Mix 1 and 2
+   Result: 3
 
 2. Subtraction Example
-Expression: 10 - 4 - 1
-Step-by-Step Evaluation:
-Step 1: Take away 4 from 10
-Step 2: Take away 1 from 6 
+Expression: 10 - 4
+Step-by-step Evaluation:
+   Step 1: Take away 4 from 10
+   Result: 6
 
 3. Multiplication Example
-Expression: 2 * 3 * 4
-Step-by-Step Evaluation:
-Step 1: Combine 2 and 3 
-Step 2: Combine 6 and 4 
+Expression: 2 * 3 
+Step-by-step Evaluation:
+   Step 1: Multiply 2 and 3
+   Result: 6
 
 4. Division Example
-Expression: 20 / 2 / 5
+Expression: 20 / 2
 Step-by-Step Evaluation:
-Step 1: Share 20 with 2 
-Step 2: Share 10 with 5
+   Step 1: Divide 20 by 2 
+   Result: 10
 
 5. Unary Minus Example
-Expression: -(3 + 4)
+Expression: 3
 Step-by-Step Evaluation:
-Step 1: Mix 3 and 4 
-Step 2: Flip '7'
+   Step 1: Flip 3
+   Result: -3
 
 6. Inequality Example
 Expression: 5 > 3
 Step-by-Step Evaluation:
-Step 1: Check if 5 is greater than 3 → Yes, true
+   Step 1: Check if 5 > 3
+   Result: true
 
+-------------------------------------------------------------------------------
 
 Grammar: 
 
-Step1: Mix 1 and 2
-Step2: Mix Step1 and 3
-Step3: Flip Step2
-Step4: Check if Step3 < 0
+<Program> ::= <Statement>*
 
-Interpreter:
-- Parse "Mix 1 and 2" 
-Parse "Mix Step1 and 3" 
-Parse "Flip Step2" 
+<Statement> ::=
+      <VarDecl>
+    | <SetStmt>
+    | <PrintStmt>
+    | <IfStmt>
+    | <WhileStmt>
+    | <ForStmt>
+    | <FunctionDecl>
+    | <Block>
+    | <ExprStmt>
 
-<Program> ::= <Step> | <Step> <Program>
+<FunctionDecl> ::= "recipe" IDENTIFIER "(" <Parameters>? ")" <Block>
 
-<Step> ::= "Mix" <Value> "and" <Value>                               // addition
-         | "Take away" <Value> "from" <Value>                        // subtraction
-         | "Combine" <Value> "and" <Value>                           // multiplication
-         | "Share" <Value> "with" <Value>                            // division
-         | "Flip" <Value>                                            // unary minus
-         | "Check if" <Value> <Inequality> <Value>                   // inequality
+<Block> ::= "{" <Statement>* "}"
 
-<Value> ::= number | result of previous step
+<Expr> ::= <LogicOr>
+
+<Value> ::= NUMBER | STRING | TRUE | FALSE | IDENTIFIER | "(" <Expr> ")"
+
+<StepOperations> ::=
+        "Mix" <Value> "and" <Value>
+      | "Take away" <Value> "from" <Value>
+      | "Multiply" <Value> "and" <Value>
+      | "Divide" <Value> "by" <Value>
+      | "Flip" <Value>
+      | "Check if" <Value> <Inequality> <Value>
+
 <Inequality> ::= ">" | "<" | "=="
 
