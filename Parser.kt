@@ -226,7 +226,7 @@ class Parser(private val tokens: List<Token>) {
     // <Step> ::= "Mix" <Value> "and" <Value>
     //          | "Take away" <Value> "from" <Value>
     //          | "Multiply" <Value> "and" <Value>
-    //          | "Divide" <Value> "with" <Value>
+    //          | "Divide" <Value> "by" <Value>
     //          | "Flip" <Value>
     //          | "Check if" <Value> <Inequality> <Value>
     //          | <Value>
@@ -257,7 +257,7 @@ class Parser(private val tokens: List<Token>) {
             match(TokenType.DIVIDE) -> {
                 val operator = previous()
                 val left = value()
-                consume(TokenType.WITH, "Expect 'with' after first value.")
+                consume(TokenType.BY, "Expect 'by' after first value.")
                 val right = value()
                 Expr.Binary(left, operator, right)
             }
@@ -402,3 +402,4 @@ class AstPrinter {
         return builder.toString()
     }
 }
+
