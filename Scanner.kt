@@ -21,13 +21,6 @@ class Scanner(private val source: String) {
         "as" to TokenType.AS,
         "to" to TokenType.TO,
 
-//        // natural language sugar
-//        "the" to TokenType.THE,
-//        "value" to TokenType.VALUE,
-//        "when" to TokenType.WHEN,
-//        "you" to TokenType.YOU,
-
-        // cookbook-style control flow (your choice)
         "when" to TokenType.IF,          // cookbook 'when' -> if
         "otherwise" to TokenType.ELSE,   // cookbook 'otherwise' -> else
         "repeat" to TokenType.WHILE,     // 'repeat' -> while
@@ -38,7 +31,7 @@ class Scanner(private val source: String) {
         // connectors
         "and" to TokenType.AND,
         "from" to TokenType.FROM,
-        "with" to TokenType.WITH,
+        "by" to TokenType.BY,
         "or" to TokenType.OR,
 
         // boolean
@@ -166,3 +159,4 @@ class Scanner(private val source: String) {
         println("[Line $line] Error: $message")
     }
 }
+
