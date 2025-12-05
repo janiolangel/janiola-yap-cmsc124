@@ -1,4 +1,4 @@
-# **StepScript Programming Language Specification**
+# **StepScript Specification**
 
 **Creators:** 
 ---
