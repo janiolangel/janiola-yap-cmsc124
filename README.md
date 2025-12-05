@@ -75,24 +75,27 @@ Step-by-Step Evaluation:
 
 Grammar: 
 
+Program:
+    Statement*
+    
 Statement: 
-      <VarDecl>
-    | <SetStmt>
-    | <PrintStmt>
-    | <IfStmt>
-    | <WhileStmt>
-    | <ForStmt>
-    | <FunctionDecl>
-    | <Block>
-    | <ExprStmt>
+      VarDecl
+    | SetStmt
+    | PrintStmt
+    | IfStmt
+    | WhileStmt
+    | ForStmt
+    | FunctionDecl
+    | Block
+    | ExprStmt
 
-FunctionDecl: "recipe" IDENTIFIER "(" <Parameters>? ")" <Block>
+FunctionDecl: recipe IDENTIFIER ( Parameters? ) Block
 
-Block: "{" <Statement>* "}"
+Block: { Statement }
 
-Expr: <LogicOr>
+Expr: LogicOr
 
-Value : NUMBER | STRING | TRUE | FALSE | IDENTIFIER | "(" <Expr> ")"
+Value : NUMBER | STRING | TRUE | FALSE | IDENTIFIER | ( Expr )
 
 StepOperations:
         "Mix" <Value> "and" <Value>
